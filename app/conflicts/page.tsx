@@ -47,7 +47,7 @@ export default function ConflictsListPage() {
               <Card
                 highlightBorder={conf.status === "OPEN"}
                 className={`transition-all hover:border-[var(--primary)] ${
-                  conf.status === "OPEN" ? "bg-amber-950/20" : ""
+                  conf.status === "OPEN" ? "bg-red-500/5" : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">

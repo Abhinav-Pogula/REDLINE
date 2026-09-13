@@ -19,7 +19,7 @@ export const BottomNavBar: React.FC = () => {
           href="/"
           className={`p-2.5 rounded-full transition-all ${
             isHome
-              ? "text-[var(--primary)] bg-neutral-900"
+              ? "text-[var(--primary)] bg-[var(--primary)]/10"
               : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
           aria-label="Dashboard"
@@ -41,7 +41,7 @@ export const BottomNavBar: React.FC = () => {
           href="/commitments"
           className={`p-2.5 rounded-full transition-all ${
             isSearch
-              ? "text-[var(--primary)] bg-neutral-900"
+              ? "text-[var(--primary)] bg-[var(--primary)]/10"
               : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
           aria-label="Memory Search"

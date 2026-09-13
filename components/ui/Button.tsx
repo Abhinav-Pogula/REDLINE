@@ -22,7 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   if (variant === "primary") {
     variantStyle = "bg-[var(--primary)] text-[var(--primary-ink)] hover:brightness-110 active:scale-95";
   } else if (variant === "secondary") {
-    variantStyle = "bg-black text-white border border-[var(--border)] hover:bg-neutral-900 active:scale-95";
+    variantStyle = "bg-[var(--secondary)] text-[var(--bg)] border border-[var(--border)] hover:opacity-90 active:scale-95";
   } else if (variant === "outline") {
     variantStyle =
       "bg-transparent border border-[var(--border)] text-[var(--text)] hover:border-[var(--text-muted)] active:scale-95";

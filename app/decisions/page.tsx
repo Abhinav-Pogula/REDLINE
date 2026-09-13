@@ -48,7 +48,7 @@ export default function DecisionsTimelinePage() {
                 className={`absolute -left-6 top-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                   isLatest
                     ? "bg-[var(--primary)] border-[var(--primary-ink)] shadow-md shadow-[var(--primary)]/40 scale-110"
-                    : "bg-neutral-900 border-[var(--border)]"
+                    : "bg-[var(--surface)] border-[var(--border)]"
                 }`}
               >
                 <div
@@ -62,7 +62,7 @@ export default function DecisionsTimelinePage() {
               <Card
                 highlightBorder={isLatest}
                 className={`transition-all hover:border-[var(--primary)]/60 ${
-                  isLatest ? "bg-amber-950/20" : ""
+                  isLatest ? "bg-red-500/5" : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
@@ -85,7 +85,7 @@ export default function DecisionsTimelinePage() {
                 )}
 
                 {dec.supersedesId && (
-                  <span className="inline-block mt-2 font-mono text-[10px] bg-neutral-900 border border-[var(--border)] text-[var(--primary)] px-2 py-0.5 rounded">
+                  <span className="inline-block mt-2 font-mono text-[10px] bg-[var(--surface)] border border-[var(--border)] text-[var(--primary)] px-2 py-0.5 rounded">
                     ↩ Supersedes Decision #{dec.supersedesId}
                   </span>
                 )}

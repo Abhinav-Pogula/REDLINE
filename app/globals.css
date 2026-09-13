@@ -5,15 +5,15 @@
 @tailwind utilities;
 
 :root {
-  --bg: #101010;
-  --surface: #1A1A1A;
-  --border: #2A2A2A;
-  --primary: #DAA200;
-  --primary-ink: #101010;
-  --secondary: #FFFAEF;
-  --text: #F2F0EA;
-  --text-muted: #7E7669;
-  --danger: #DAA200;
+  --bg: #FFFFFF;
+  --surface: #F7F7F5;
+  --border: #E3E1DC;
+  --primary: #ED0302;
+  --primary-ink: #FFFFFF;
+  --secondary: #1A1A1A;
+  --text: #111111;
+  --text-muted: #6B6560;
+  --danger: #ED0302;
 
   --font-headline: 'Space Grotesk', sans-serif;
   --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -49,19 +49,28 @@ body {
   background: var(--text-muted);
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Utility Animations */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(218, 162, 0, 0.7);
+    box-shadow: 0 0 0 0 rgba(237, 3, 2, 0.6);
   }
   70% {
     transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(218, 162, 0, 0);
+    box-shadow: 0 0 0 10px rgba(237, 3, 2, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(218, 162, 0, 0);
+    box-shadow: 0 0 0 0 rgba(237, 3, 2, 0);
   }
 }
 

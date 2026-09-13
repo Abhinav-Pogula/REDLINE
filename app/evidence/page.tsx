@@ -45,7 +45,7 @@ export default function EvidenceListPage() {
                   </span>
                 </div>
 
-                <blockquote className="border-l-2 border-[var(--border)] group-hover:border-[var(--primary)] pl-3 py-1 font-mono text-xs text-[var(--text)] italic bg-black/40 rounded-r transition-colors">
+                <blockquote className="border-l-2 border-[var(--border)] group-hover:border-[var(--primary)] pl-3 py-1 font-mono text-xs text-[var(--text)] italic bg-[var(--border)]/20 rounded-r transition-colors">
                   &ldquo;{ev.content}&rdquo;
                 </blockquote>
 

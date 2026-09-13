@@ -23,13 +23,13 @@ export const StatusPill: React.FC<StatusPillProps> = ({
     "UNCERTAIN",
   ].includes(normStatus);
 
-  let styleClasses = "bg-neutral-900 border border-[var(--border)] text-[var(--text-muted)]";
+  let styleClasses = "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)]";
   if (isPrimary) {
-    styleClasses = "bg-[var(--primary)]/15 border border-[var(--primary)] text-[var(--primary)] font-semibold";
+    styleClasses = "bg-[var(--primary)]/10 border border-[var(--primary)] text-[var(--primary)] font-semibold";
   } else if (normStatus === "CONFIRMED" || normStatus === "ACTIVE" || normStatus === "DONE" || normStatus === "SATISFIED") {
-    styleClasses = "bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 font-medium";
+    styleClasses = "bg-emerald-50 border border-emerald-300 text-emerald-700 font-medium";
   } else if (normStatus === "SUPERSEDED" || normStatus === "DISMISSED") {
-    styleClasses = "bg-neutral-900/60 border border-[var(--border)] text-[var(--text-muted)] opacity-75 line-through";
+    styleClasses = "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)] opacity-75 line-through";
   }
 
   const sizeClasses = size === "sm" ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1";

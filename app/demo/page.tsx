@@ -41,7 +41,7 @@ export default function DemoPage() {
       </div>
 
       {/* Hero Controller Card */}
-      <Card highlightBorder className="bg-amber-950/20 space-y-4">
+      <Card highlightBorder className="bg-red-500/5 space-y-4">
         <div>
           <span className="font-mono text-[10px] text-[var(--primary)] uppercase font-bold block mb-1">
             Deterministic Contradiction Proof
@@ -151,7 +151,7 @@ export default function DemoPage() {
           highlightBorder={demoStep === 3 || conflicts.length > 0}
           className={`space-y-2 transition-all ${
             demoStep >= 3 || conflicts.length > 0
-              ? "border-[var(--primary)] bg-amber-950/20"
+              ? "border-[var(--primary)] bg-red-500/5"
               : "opacity-50"
           }`}
         >
@@ -161,7 +161,7 @@ export default function DemoPage() {
                 className={`font-mono text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold ${
                   demoStep === 3 || conflicts.length > 0
                     ? "bg-[var(--primary)] text-[var(--primary-ink)] animate-ping"
-                    : "bg-neutral-800 text-[var(--text-muted)]"
+                    : "bg-[var(--border)] text-[var(--text-muted)]"
                 }`}
               >
                 3
@@ -179,7 +179,7 @@ export default function DemoPage() {
           </p>
 
           {(demoStep >= 3 || conflicts.length > 0) && (
-            <div className="ml-8 mt-2 p-3 bg-black/60 border border-[var(--primary)]/40 rounded-xl space-y-2">
+            <div className="ml-8 mt-2 p-3 bg-[var(--surface)] border border-[var(--primary)]/40 rounded-xl space-y-2">
               <div className="flex items-center gap-1.5 text-[var(--primary)] font-headline font-bold text-xs">
                 <AlertIcon size={16} />
                 <span>Rule 1 Triggered: Launch Date vs Security Buffer</span>

@@ -53,11 +53,11 @@ export default function SettingsPage() {
             <button
               onClick={() => setBackgroundListen(!backgroundListen)}
               className={`w-11 h-6 rounded-full transition-colors p-0.5 ${
-                backgroundListen ? "bg-[var(--primary)]" : "bg-neutral-800"
+                backgroundListen ? "bg-[var(--primary)]" : "bg-[var(--border)]"
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-black transition-transform ${
+                className={`w-5 h-5 rounded-full bg-white transition-transform ${
                   backgroundListen ? "translate-x-5" : "translate-x-0"
                 }`}
               />
@@ -76,11 +76,11 @@ export default function SettingsPage() {
             <button
               onClick={() => setLocalOnly(!localOnly)}
               className={`w-11 h-6 rounded-full transition-colors p-0.5 ${
-                localOnly ? "bg-[var(--primary)]" : "bg-neutral-800"
+                localOnly ? "bg-[var(--primary)]" : "bg-[var(--border)]"
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-black transition-transform ${
+                className={`w-5 h-5 rounded-full bg-white transition-transform ${
                   localOnly ? "translate-x-5" : "translate-x-0"
                 }`}
               />
@@ -99,11 +99,11 @@ export default function SettingsPage() {
             <button
               onClick={() => setProactiveAlerts(!proactiveAlerts)}
               className={`w-11 h-6 rounded-full transition-colors p-0.5 ${
-                proactiveAlerts ? "bg-[var(--primary)]" : "bg-neutral-800"
+                proactiveAlerts ? "bg-[var(--primary)]" : "bg-[var(--border)]"
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-black transition-transform ${
+                className={`w-5 h-5 rounded-full bg-white transition-transform ${
                   proactiveAlerts ? "translate-x-5" : "translate-x-0"
                 }`}
               />
@@ -112,7 +112,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Reset Store Action */}
-        <Card className="space-y-3 bg-neutral-950 border-[var(--border)]">
+        <Card className="space-y-3 border-[var(--border)]">
           <div>
             <h3 className="font-headline font-bold text-xs text-[var(--text)]">
               Developer & Judge Reset

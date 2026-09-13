@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-black text-[var(--text)] antialiased min-h-screen">
+      <body className="bg-[var(--bg)] text-[var(--text)] antialiased min-h-screen">
         <MemoryProvider>
           {/* Mobile Viewport Container */}
           <div className="max-w-md mx-auto min-h-screen bg-[var(--bg)] border-x border-[var(--border)] flex flex-col relative pb-24 shadow-2xl">

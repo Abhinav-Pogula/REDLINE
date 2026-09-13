@@ -101,7 +101,7 @@ export const NavDrawer: React.FC<NavDrawerProps> = ({ isOpen, onClose }) => {
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all font-body text-sm ${
                     isActive
                       ? "bg-[var(--primary)]/10 text-[var(--primary)] font-semibold border border-[var(--primary)]/30"
-                      : "text-[var(--text)] hover:bg-neutral-900"
+                      : "text-[var(--text)] hover:bg-[var(--border)]/40"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ export const NavDrawer: React.FC<NavDrawerProps> = ({ isOpen, onClose }) => {
               resetToSeed();
               onClose();
             }}
-            className="w-full bg-neutral-900 border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+            className="w-full bg-[var(--surface)] hover:bg-[var(--border)]/40 border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
           >
             <RefreshIcon size={14} />
             <span>Reset Seed Store</span>

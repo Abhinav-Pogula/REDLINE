@@ -132,7 +132,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
       {/* Source Badge & Date/Time */}
       <div className="flex items-center justify-between bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs px-2 py-0.5 rounded bg-neutral-900 border border-[var(--border)] text-[var(--primary)]">
+          <span className="font-mono text-xs px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--primary)]">
             {formatSource(meeting.source)}
           </span>
         </div>
@@ -159,7 +159,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Section 2: Related Conflict Callout (Slim Primary Bordered) */}
       {relatedConflict && (
-        <Card highlightBorder className="bg-amber-950/20 space-y-2">
+        <Card highlightBorder className="bg-red-500/5 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-[var(--primary)] font-headline font-bold text-xs">
               <AlertIcon size={16} />
@@ -197,7 +197,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             {meetingDecisions.map((d) => (
               <div
                 key={d.id}
-                className="bg-black/50 border border-[var(--border)] rounded-lg p-3 space-y-1.5"
+                className="bg-[var(--border)]/20 border border-[var(--border)] rounded-lg p-3 space-y-1.5"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] uppercase text-[var(--text-muted)]">
@@ -230,7 +230,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             {meetingConstraints.map((c) => (
               <div
                 key={c.id}
-                className="bg-black/50 border border-[var(--border)] rounded-lg p-3 space-y-1.5"
+                className="bg-[var(--border)]/20 border border-[var(--border)] rounded-lg p-3 space-y-1.5"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] uppercase text-[var(--text-muted)]">
@@ -274,7 +274,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             {meetingCommitments.map((com) => (
               <div
                 key={com.id}
-                className="flex items-center justify-between bg-black/40 border border-[var(--border)] rounded-lg p-3"
+                className="flex items-center justify-between bg-[var(--border)]/20 border border-[var(--border)] rounded-lg p-3"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -302,7 +302,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
           <h2 className="font-headline font-bold text-sm text-[var(--secondary)]">
             Ask About This Meeting
           </h2>
-          <span className="font-mono text-[10px] bg-neutral-900 border border-[var(--border)] text-[var(--text-muted)] px-2 py-0.5 rounded">
+          <span className="font-mono text-[10px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)] px-2 py-0.5 rounded">
             Scoped Memory Retrieval
           </span>
         </div>
@@ -320,7 +320,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                 className={`max-w-[85%] rounded-xl px-3 py-2 text-xs font-body ${
                   msg.sender === "user"
                     ? "bg-[var(--primary)] text-[var(--primary-ink)] font-semibold"
-                    : "bg-neutral-900 border border-[var(--border)] text-[var(--text)]"
+                    : "bg-[var(--surface)] border border-[var(--border)] text-[var(--text)]"
                 }`}
               >
                 {msg.text}
@@ -333,7 +333,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
 
           {isTyping && (
             <div className="flex items-start">
-              <div className="bg-neutral-900 border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text-muted)] animate-pulse">
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text-muted)] animate-pulse">
                 Querying transcript memory index...
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             placeholder="Ask about this meeting..."
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
-            className="flex-1 bg-black border border-[var(--border)] rounded-full px-4 py-2 text-xs font-body text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)]"
+            className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-full px-4 py-2 text-xs font-body text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)]"
           />
           <Button type="submit" variant="primary" size="sm" disabled={!chatInput.trim() || isTyping}>
             <SendIcon size={14} />

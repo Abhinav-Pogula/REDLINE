@@ -131,7 +131,7 @@ export default function RecordPage() {
 
       {/* Capture State Card */}
       {isProcessing ? (
-        <Card highlightBorder className="py-12 text-center space-y-4 bg-amber-950/20">
+        <Card highlightBorder className="py-12 text-center space-y-4 bg-red-500/5">
           <div className="w-12 h-12 rounded-full border-4 border-[var(--primary)] border-t-transparent animate-spin mx-auto" />
           <div>
             <h2 className="font-headline font-bold text-base text-[var(--primary)]">
@@ -143,7 +143,7 @@ export default function RecordPage() {
           </div>
         </Card>
       ) : (
-        <Card highlightBorder className="py-10 text-center space-y-6 bg-black/60">
+        <Card highlightBorder className="py-10 text-center space-y-6">
           {/* Pulsing Primary Dot */}
           <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
             <div className="absolute inset-0 rounded-full bg-[var(--primary)]/20 animate-ping" />

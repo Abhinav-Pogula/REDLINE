@@ -55,7 +55,7 @@ export default function EvidenceDetailPage({ params }: { params: Promise<{ id: s
           <span className="font-mono text-xs text-[var(--primary)] font-bold uppercase flex items-center gap-1.5">
             <FileTextIcon size={14} /> Type: {ev.type}
           </span>
-          <span className="font-mono text-xs text-[var(--text-muted)] bg-neutral-900 border border-[var(--border)] px-2.5 py-1 rounded-full">
+          <span className="font-mono text-xs text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)] px-2.5 py-1 rounded-full">
             {ev.timestamp}
           </span>
         </div>
@@ -64,7 +64,7 @@ export default function EvidenceDetailPage({ params }: { params: Promise<{ id: s
           <span className="font-mono text-[10px] text-[var(--text-muted)] uppercase block mb-1.5">
             Exact Quoted Transcript Excerpt
           </span>
-          <blockquote className="border-l-4 border-[var(--primary)] pl-4 py-3 font-mono text-sm text-[var(--secondary)] italic bg-black/60 rounded-r leading-relaxed">
+          <blockquote className="border-l-4 border-[var(--primary)] pl-4 py-3 font-mono text-sm text-[var(--secondary)] italic bg-[var(--border)]/20 rounded-r leading-relaxed">
             &ldquo;{ev.content}&rdquo;
           </blockquote>
         </div>
@@ -75,7 +75,7 @@ export default function EvidenceDetailPage({ params }: { params: Promise<{ id: s
               Originating Session
             </span>
             <Link href={`/meetings/${meeting.id}`} className="block group">
-              <div className="bg-neutral-900 border border-[var(--border)] group-hover:border-[var(--primary)] rounded-xl p-3 flex items-center justify-between transition-colors">
+              <div className="bg-[var(--surface)] border border-[var(--border)] group-hover:border-[var(--primary)] rounded-xl p-3 flex items-center justify-between transition-colors">
                 <div>
                   <h3 className="font-headline font-bold text-xs text-[var(--text)]">
                     {meeting.title}

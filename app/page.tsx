@@ -19,6 +19,29 @@ export default function Dashboard() {
   const { meetings, conflicts, decisions, commitments, runDemoSequence, isDemoRunning, demoStep } =
     useMemory();
 
+  const [activeMeetingIndex, setActiveMeetingIndex] = React.useState(0);
+  const meetingsScrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleMeetingsScroll = () => {
+    if (meetingsScrollRef.current) {
+      const { scrollLeft, offsetWidth } = meetingsScrollRef.current;
+      if (offsetWidth > 0) {
+        const index = Math.round(scrollLeft / offsetWidth);
+        setActiveMeetingIndex(Math.min(Math.max(0, index), Math.max(0, meetings.length - 1)));
+      }
+    }
+  };
+
+  const scrollToMeeting = (index: number) => {
+    if (meetingsScrollRef.current) {
+      meetingsScrollRef.current.scrollTo({
+        left: index * meetingsScrollRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+      setActiveMeetingIndex(index);
+    }
+  };
+
   const openConflicts = conflicts.filter((c) => c.status === "OPEN");
   const activeCommitments = commitments.filter((c) => c.status === "OPEN");
 
@@ -69,7 +92,12 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+        <div
+          ref={meetingsScrollRef}
+          onScroll={handleMeetingsScroll}
+          className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
           {meetings.map((m) => {
             const hasConflict = openConflicts.some((c) =>
               c.implicatedMeetingIds?.includes(m.id)
@@ -80,42 +108,66 @@ export default function Dashboard() {
             });
 
             return (
-              <Link
+              <div
                 key={m.id}
-                href={`/meetings/${m.id}`}
-                className="flex-shrink-0 w-48 group transition-all"
+                className="w-full min-w-full flex-shrink-0 snap-center"
+                style={{ scrollSnapAlign: "center" }}
               >
-                <Card
-                  highlightBorder={hasConflict}
-                  className={`h-full flex flex-col justify-between hover:border-[var(--primary)]/60 relative ${
-                    hasConflict ? "bg-amber-950/20" : ""
-                  }`}
+                <Link
+                  href={`/meetings/${m.id}`}
+                  className="block w-full group transition-all"
                 >
-                  {/* Conflict Dot Badge */}
-                  {hasConflict && (
-                    <div className="absolute top-3 right-3 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-ping" />
-                      <span className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                  <Card
+                    highlightBorder={hasConflict}
+                    className={`h-full flex flex-col justify-between hover:border-[var(--primary)]/60 relative ${
+                      hasConflict ? "bg-red-500/5" : ""
+                    }`}
+                  >
+                    {/* Conflict Dot Badge */}
+                    {hasConflict && (
+                      <div className="absolute top-3 right-3 flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-ping" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                      </div>
+                    )}
+
+                    <div>
+                      <span className="font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-1">
+                        {getSourceBadge(m.source)} • {dateFormatted}
+                      </span>
+                      <h3 className="font-headline font-bold text-sm text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                        {m.title}
+                      </h3>
                     </div>
-                  )}
 
-                  <div>
-                    <span className="font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-1">
-                      {getSourceBadge(m.source)} • {dateFormatted}
-                    </span>
-                    <h3 className="font-headline font-bold text-sm text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
-                      {m.title}
-                    </h3>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-xs text-[var(--text-muted)] pt-2 border-t border-[var(--border)]">
-                    <span className="font-mono text-[10px]">Detail →</span>
-                  </div>
-                </Card>
-              </Link>
+                    <div className="mt-3 flex items-center justify-between text-xs text-[var(--text-muted)] pt-2 border-t border-[var(--border)]">
+                      <span className="font-mono text-[10px]">Detail →</span>
+                    </div>
+                  </Card>
+                </Link>
+              </div>
             );
           })}
         </div>
+
+        {/* Meeting Carousel Dot Indicators */}
+        {meetings.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            {meetings.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => scrollToMeeting(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeMeetingIndex === idx
+                    ? "w-5 bg-[var(--primary)]"
+                    : "w-1.5 bg-[var(--border)] hover:bg-[var(--text-muted)]"
+                }`}
+                aria-label={`Go to meeting ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Idle-State Monitoring Note */}
         <p className="font-mono text-[11px] text-[var(--text-muted)] text-center mt-2.5 flex items-center justify-center gap-1.5 bg-[var(--surface)]/50 py-1.5 rounded-lg border border-[var(--border)]/50">
@@ -126,7 +178,7 @@ export default function Dashboard() {
 
       {/* 2. Active Conflict Banner / Callout */}
       {openConflicts.length > 0 ? (
-        <Card highlightBorder className="bg-amber-950/20 space-y-3">
+        <Card highlightBorder className="bg-red-500/5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertIcon className="text-[var(--primary)]" size={18} />
@@ -170,7 +222,7 @@ export default function Dashboard() {
       )}
 
       {/* 3. Replay Demo Quick Action Card */}
-      <Card className="bg-neutral-900 border-[var(--border)] flex items-center justify-between p-4">
+      <Card className="border-[var(--border)] flex items-center justify-between p-4">
         <div className="space-y-0.5">
           <h3 className="font-headline font-bold text-sm text-[var(--text)]">
             Judge Demo Mode

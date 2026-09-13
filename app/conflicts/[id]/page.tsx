@@ -64,7 +64,7 @@ export default function ConflictDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* Overview & Status Banner */}
-      <Card highlightBorder={conflict.status === "OPEN"} className="bg-amber-950/30 space-y-3">
+      <Card highlightBorder={conflict.status === "OPEN"} className={`${conflict.status === "OPEN" ? "bg-red-500/5" : ""} space-y-3`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-[var(--primary)]">
             <AlertIcon size={18} />
@@ -100,7 +100,7 @@ export default function ConflictDetailPage({ params }: { params: Promise<{ id: s
         </h2>
 
         {/* Card 1: New Decision Evidence */}
-        <Card className="space-y-2 border-amber-500/40">
+        <Card className="space-y-2 border-[var(--primary)]/30">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase text-[var(--primary)] font-bold flex items-center gap-1">
               <FileTextIcon size={12} /> NEW DECISION (TRIGGER)
@@ -110,7 +110,7 @@ export default function ConflictDetailPage({ params }: { params: Promise<{ id: s
             </span>
           </div>
 
-          <blockquote className="border-l-2 border-[var(--primary)] pl-3 py-1 font-mono text-xs text-[var(--secondary)] italic bg-black/40 rounded-r">
+          <blockquote className="border-l-2 border-[var(--primary)] pl-3 py-1 font-mono text-xs text-[var(--secondary)] italic bg-[var(--border)]/30 rounded-r">
             &ldquo;{newEvidence?.content || "Decision updated"}&rdquo;
           </blockquote>
 
@@ -136,7 +136,7 @@ export default function ConflictDetailPage({ params }: { params: Promise<{ id: s
               </span>
             </div>
 
-            <blockquote className="border-l-2 border-[var(--text-muted)] pl-3 py-1 font-mono text-xs text-[var(--text)] italic bg-black/40 rounded-r">
+            <blockquote className="border-l-2 border-[var(--text-muted)] pl-3 py-1 font-mono text-xs text-[var(--text)] italic bg-[var(--border)]/30 rounded-r">
               &ldquo;{ev?.content}&rdquo;
             </blockquote>
 
@@ -153,7 +153,7 @@ export default function ConflictDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* Plain Language Reasoning Line */}
-      <Card className="bg-neutral-950 border-[var(--border)] space-y-1.5">
+      <Card className="border-[var(--border)] space-y-1.5">
         <span className="font-mono text-[10px] text-[var(--primary)] uppercase font-bold block">
           Deterministic Reasoning
         </span>
