@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>REDLINE Desktop Application</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700;800&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS v3 with plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        redline: {
+                            red: '#e5342b',
+                            redHover: '#cc2920',
+                            redBg: '#fef2f2',
+                            redCard: '#fdeaea',
+                            redBorder: '#fca5a5',
+                            grayDark: '#0f1115',
+                            graySub: '#4b5563',
+                            grayLight: '#f8fafc',
+                            borderLight: '#e5e7eb',
+                            badgeGreen: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['"IBM Plex Mono"', 'monospace'],
+                        display: ['"Space Grotesk"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles for Scrollbars and Window Aesthetics -->
+    <style data-purpose="base-styling">
+        body {
+            background-color: #0b0d11;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbar for inner panes */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-6 lg:p-10 text-slate-800">
+    <!-- BEGIN: DesktopWindowFrame -->
+    <div class="w-full max-w-[1440px] h-[920px] bg-white rounded-2xl shadow-2xl border border-neutral-300 flex flex-col overflow-hidden relative"
+        data-purpose="desktop-window">
+        <!-- Top Window Titlebar -->
+        <header
+            class="h-10 bg-white border-b border-neutral-200 px-4 flex items-center justify-between select-none shrink-0"
+            data-purpose="window-titlebar">
+            <!-- Left: Mac/Windows styled subtle controls -->
+            <div class="flex items-center gap-2 w-28">
+                <span
+                    class="w-3 h-3 rounded-full bg-neutral-300 hover:bg-red-400 transition-colors cursor-pointer inline-block"></span>
+                <span
+                    class="w-3 h-3 rounded-full bg-neutral-300 hover:bg-yellow-400 transition-colors cursor-pointer inline-block"></span>
+                <span
+                    class="w-3 h-3 rounded-full bg-neutral-300 hover:bg-green-400 transition-colors cursor-pointer inline-block"></span>
+            </div>
+            <!-- Center: Tracked Brand Wordmark and Client Node Status -->
+            <div class="flex items-center gap-2 text-xs">
+                <span class="font-extrabold tracking-[0.25em] text-neutral-900 font-mono">REDLINE</span>
+                <span class="text-neutral-400">|</span>
+                <span class="font-mono text-[11px] tracking-wider text-neutral-500 uppercase">OFFICE KIT CLIENT //
+                    ON-DEVICE NODE</span>
+            </div>
+            <!-- Right: Link Pill and Status -->
+            <div class="flex items-center justify-end w-40">
+                <div
+                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-[10px] font-mono font-medium text-neutral-600">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="">LINK: 5.2GHz AIR</span>
+                </div>
+            </div>
+        </header>
+        <!-- App Body Container: Sidebar + Content Panels -->
+        <div class="flex flex-1 min-h-0 overflow-hidden bg-white">
+            <!-- BEGIN: LeftSidebar -->
+            <aside
+                class="w-64 border-r border-neutral-200 flex flex-col justify-between bg-white shrink-0 py-5 px-3 select-none"
+                data-purpose="navigation-sidebar">
+                <!-- Top Nav Items & Profile -->
+                <div class="flex flex-col gap-5">
+                    <!-- Profile Badge -->
+                    <div class="flex items-center gap-3 px-2">
+                        <div
+                            class="relative flex items-center justify-center w-10 h-10 rounded-full bg-neutral-100 border border-neutral-300 font-mono font-bold text-neutral-700 text-sm">
+                            AR
+                            <span class="absolute -bottom-0.5 -right-0.5 bg-neutral-900 text-white rounded-full p-0.5">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path clip-rule="evenodd"
+                                        d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z"
+                                        fill-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-neutral-900 leading-tight">Alex Rivera</span>
+                            <span class="text-[11px] text-neutral-500 font-medium">SecOps Architect</span>
+                        </div>
+                    </div>
+                    <!-- Primary Navigation Links -->
+                    <nav class="flex flex-col gap-1 text-xs font-semibold" data-purpose="sidebar-menu">
+                        <!-- Dashboard (Active) -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-900 border transition-colors w-full text-left hover:bg-neutral-100"
+                            id="nav-dashboard" onclick="switchView('dashboard')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">📊</span>
+                                <span class="tracking-tight">Dashboard</span>
+                            </div>
+                            <span class="text-neutral-400 text-xs">›</span>
+                        </button>
+                        <!-- Device Connection -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors w-full text-left"
+                            id="nav-devices" onclick="switchView('devices')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">📱</span>
+                                <span class="tracking-tight">Device Connection</span>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </button>
+                        <!-- Record -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors w-full text-left"
+                            id="nav-record" onclick="switchView('dashboard')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">🎙️</span>
+                                <span class="tracking-tight">Record</span>
+                            </div>
+                            <span class="text-neutral-400 text-xs">›</span>
+                        </button>
+                        <!-- Calendar -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-700 transition-colors w-full text-left bg-red-50 border-red-200"
+                            id="nav-calendar" onclick="switchView('calendar')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">📅</span>
+                                <span class="tracking-tight">Calendar</span>
+                            </div>
+                            <span
+                                class="px-1.5 py-0.5 rounded-full bg-redline-red text-white font-mono text-[10px] font-bold">3</span>
+                        </button>
+                        <!-- Timeline -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors w-full text-left"
+                            id="nav-timeline" onclick="switchView('dashboard')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">⏱️</span>
+                                <span class="tracking-tight">Timeline</span>
+                            </div>
+                            <span class="text-neutral-400 text-xs">›</span>
+                        </button>
+                        <!-- Conflicts -->
+                        <button
+                            class="nav-button flex items-center justify-between px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors w-full text-left"
+                            id="nav-conflicts" onclick="switchView('conflicts')">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">⚠️</span>
+                                <span class="tracking-tight">Conflicts</span>
+                            </div>
+                            <span
+                                class="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 text-redline-red font-mono text-[9px] font-bold">1
+                                FLAG</span>
+                        </button>
+                        <!-- Separator -->
+                        <div class="h-px bg-neutral-200 my-2"></div>
+                        <!-- Secondary Links -->
+                        <div
+                            class="flex items-center justify-between px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">💾</span>
+                                <span class="font-medium text-xs">Your Data</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-neutral-400">1.2 GB</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">💻</span>
+                                <span class="font-medium text-xs">Laptop Connection</span>
+                            </div>
+                            <span class="w-1.5 h-1.5 rounded-full bg-redline-red"></span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sm">ℹ️</span>
+                                <span class="font-medium text-xs">About REDLINE</span>
+                            </div>
+                            <span class="text-[10px] font-mono text-neutral-400">v2.4.1</span>
+                        </div>
+                    </nav>
+                </div>
+                <!-- Bottom Pinned Memory Status Card -->
+                <div class="px-2 pt-3 border-t border-neutral-200" data-purpose="sidebar-footer">
+                    <div
+                        class="flex items-center justify-center gap-2 py-2 px-3 rounded-full border border-neutral-200 bg-neutral-50 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-redline-red animate-ping"></span>
+                        <span class="text-[10px] font-mono font-bold tracking-wider text-neutral-800 uppercase">● MEMORY
+                            ACTIVE</span>
+                    </div>
+                </div>
+            </aside>
+            <!-- END: LeftSidebar -->
+            <!-- MAIN CONTENT VIEW CONTAINER -->
+            <main class="flex-1 flex flex-col min-w-0 bg-[#fafafa] overflow-y-auto" data-purpose="main-viewport">
+                <!-- ============================================== -->
+                <!-- VIEW 1: EXECUTIVE WORKSPACE OVERVIEW (DASHBOARD) -->
+                <!-- ============================================== -->
+                <div class="flex-col p-8 gap-6 max-w-7xl mx-auto w-full hidden" id="view-dashboard">
+                    <!-- Section: Header Bar -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+                        data-purpose="dashboard-header">
+                        <div>
+                            <div
+                                class="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                                <span class="w-2 h-2 rounded-full bg-redline-red"></span>
+                                <span class="">FORENSIC OPERATING CONSOLE</span>
+                                <span class="">•</span>
+                                <span class="">DESKTOP DECK</span>
+                            </div>
+                            <h1
+                                class="text-2xl lg:text-3xl font-extrabold text-neutral-950 tracking-tight font-display">
+                                Executive Workspace Overview
+                            </h1>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <!-- Office Kit Link Active Pill -->
+                            <div
+                                class="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-300 bg-white shadow-sm">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="text-xs font-semibold text-neutral-800">Office Kit Link Active</span>
+                            </div>
+                            <!-- New Recording CTA -->
+                            <button
+                                class="flex items-center gap-2 bg-redline-red hover:bg-redline-redHover text-white px-4 py-2 rounded-lg font-mono text-xs font-bold tracking-wider shadow-sm uppercase transition-all transform active:scale-95">
+                                <span class="">🎙️</span>
+                                <span class="">NEW RECORDING</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Section: KPI Metric Cards (4 Columns) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-purpose="kpi-metrics-grid">
+                        <!-- Metric 1: Total Verified Decisions -->
+                        <div
+                            class="bg-white p-4 rounded-xl border border-neutral-200 flex flex-col justify-between shadow-sm hover:border-neutral-300 transition-colors">
+                            <div>
+                                <span
+                                    class="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold block mb-2">TOTAL
+                                    VERIFIED DECISIONS</span>
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-3xl font-extrabold text-neutral-950 font-display">14</span>
+                                    <span
+                                        class="px-2 py-0.5 bg-neutral-100 border border-neutral-200 rounded-md text-[11px] font-medium text-neutral-600">4
+                                        Meetings</span>
+                                </div>
+                            </div>
+                            <p
+                                class="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-100 font-mono text-[11px]">
+                                100% cryptographic ledger proof
+                            </p>
+                        </div>
+                        <!-- Metric 2: Scheduled Commitments -->
+                        <div
+                            class="bg-white p-4 rounded-xl border border-neutral-200 flex flex-col justify-between shadow-sm hover:border-neutral-300 transition-colors">
+                            <div>
+                                <span
+                                    class="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold block mb-2">SCHEDULED
+                                    COMMITMENTS</span>
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-3xl font-extrabold text-redline-red font-display">5</span>
+                                    <span
+                                        class="px-2 py-0.5 bg-red-100 text-redline-red border border-red-200 rounded-md text-[11px] font-bold font-mono">1
+                                        Overdue</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
+                                Action items tracked across teams
+                            </p>
+                        </div>
+                        <!-- Metric 3: Monitored Meetings -->
+                        <div
+                            class="bg-white p-4 rounded-xl border border-neutral-200 flex flex-col justify-between shadow-sm hover:border-neutral-300 transition-colors">
+                            <div>
+                                <span
+                                    class="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold block mb-2">MONITORED
+                                    MEETINGS</span>
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-3xl font-extrabold text-neutral-950 font-display">4</span>
+                                    <span
+                                        class="px-2 py-0.5 bg-neutral-100 border border-neutral-200 rounded-md text-[10px] font-mono text-neutral-600">Google
+                                        / Zoom / Teams</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
+                                Synced wirelessly from Phone
+                            </p>
+                        </div>
+                        <!-- Metric 4: Enclave Integrity -->
+                        <div
+                            class="bg-white p-4 rounded-xl border border-neutral-200 flex flex-col justify-between shadow-sm hover:border-neutral-300 transition-colors">
+                            <div>
+                                <span
+                                    class="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold block mb-2">ENCLAVE
+                                    INTEGRITY</span>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xl font-bold text-emerald-600 font-mono tracking-tight">AIR-GAPPED</span>
+                                    <span class="text-neutral-400">🛡️</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
+                                Zero external telemetry ingress
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Section: Critical Contradiction Alert Card -->
+                    <div class="bg-[#fdeaea] border-2 border-red-500 rounded-xl p-5 shadow-sm relative overflow-hidden"
+                        data-purpose="contradiction-alert-banner">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-white text-[11px] font-bold">!</span>
+                                    <span
+                                        class="text-xs font-mono font-bold tracking-wider text-red-700 uppercase">CONTRADICTION
+                                        DETECTED IN ACTIVE STREAMS</span>
+                                </div>
+                                <span
+                                    class="px-2.5 py-0.5 bg-red-600 text-white rounded-full font-mono text-[10px] font-bold tracking-widest uppercase">
+                                    ● CRITICAL CONFLICT
+                                </span>
+                            </div>
+                            <!-- Contradiction Content -->
+                            <h2 class="text-lg font-bold text-neutral-950 tracking-tight mt-1">
+                                Launch Date Shift Violates Security Buffer
+                            </h2>
+                            <p class="text-xs text-neutral-700 leading-relaxed max-w-4xl">
+                                Product moved launch to <span class="font-bold text-neutral-900">Oct 12</span>, but
+                                SecOps mandatory 14-day penetration audit buffer remains scheduled through <span
+                                    class="font-bold text-neutral-900">Oct 19</span>. Collision produces a 7-day
+                                deficit.
+                            </p>
+                            <!-- Action Link -->
+                            <div class="pt-2">
+                                <button
+                                    class="text-xs font-mono font-bold text-red-600 hover:text-red-700 inline-flex items-center gap-1 group"
+                                    onclick="switchView('conflicts')">
+                                    <span class="">Inspect Side-by-Side Proof</span>
+                                    <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Section: Two-Column Detailed Content -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" data-purpose="workspace-columns">
+                        <!-- Left Column: Monitored Meetings (7 Cols) -->
+                        <div
+                            class="lg:col-span-7 bg-white rounded-xl border border-neutral-200 p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <!-- Column Header -->
+                                <div class="flex items-center justify-between pb-3 border-b border-neutral-100">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="flex items-center justify-center w-5 h-5 rounded-full bg-redline-red text-white text-xs font-bold">3</span>
+                                        <h3 class="text-base font-bold text-neutral-950 font-display">Monitored Meetings
+                                        </h3>
+                                    </div>
+                                    <span class="text-xs font-mono text-neutral-400">4 Synced Archives</span>
+                                </div>
+                                <!-- Meetings Feed List -->
+                                <div class="divide-y divide-neutral-100">
+                                    <!-- Row 1 (Highlight / Actionable) -->
+                                    <div class="py-3.5 flex items-start justify-between gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="px-1.5 py-0.5 bg-neutral-100 font-mono text-[9px] font-bold text-neutral-600 rounded">GOOGLE
+                                                    MEET</span>
+                                                <h4 class="text-sm font-bold text-neutral-900">Q4 Infrastructure
+                                                    Security Review</h4>
+                                            </div>
+                                            <p class="text-xs font-mono text-neutral-400">
+                                                Sep 18 • 42 min • 4 Key Decisions • Attendee: AK, MR +2
+                                            </p>
+                                        </div>
+                                        <button
+                                            class="shrink-0 text-xs font-mono font-bold text-redline-red hover:underline pt-1"
+                                            onclick="switchView('conflicts')">
+                                            Inspect →
+                                        </button>
+                                    </div>
+                                    <!-- Row 2 -->
+                                    <div class="py-3.5 flex items-start justify-between gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="px-1.5 py-0.5 bg-neutral-100 font-mono text-[9px] font-bold text-neutral-600 rounded">ZOOM
+                                                    // SECSYNC</span>
+                                                <h4 class="text-sm font-bold text-neutral-900">API Gateway 14-Day Audit
+                                                    Schedule</h4>
+                                            </div>
+                                            <p class="text-xs font-mono text-neutral-400">
+                                                Oct 02 • 28 min • Immutable compliance freeze locked
+                                            </p>
+                                        </div>
+                                        <span class="shrink-0 text-xs font-mono text-neutral-400 pt-1">Archived</span>
+                                    </div>
+                                    <!-- Row 3 -->
+                                    <div class="py-3.5 flex items-start justify-between gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="px-1.5 py-0.5 bg-neutral-100 font-mono text-[9px] font-bold text-neutral-600 rounded">SLACK
+                                                    HUDDLE</span>
+                                                <h4 class="text-sm font-bold text-neutral-900">Pen-testing Verification
+                                                    Milestone</h4>
+                                            </div>
+                                            <p class="text-xs font-mono text-neutral-400">
+                                                Oct 08 • 15 min • Zero blocker verified by Lead Cryptographer
+                                            </p>
+                                        </div>
+                                        <span class="shrink-0 text-xs font-mono text-neutral-400 pt-1">Archived</span>
+                                    </div>
+                                    <!-- Row 4 -->
+                                    <div class="py-3.5 flex items-start justify-between gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="px-1.5 py-0.5 bg-neutral-100 font-mono text-[9px] font-bold text-neutral-600 rounded">ZOOM
+                                                    AUDIT</span>
+                                                <h4 class="text-sm font-bold text-neutral-900">Perimeter Vulnerability
+                                                    Baseline Review</h4>
+                                            </div>
+                                            <p class="text-xs font-mono text-neutral-400">
+                                                Oct 10 • 35 min • Scope finalized for pen-testing
+                                            </p>
+                                        </div>
+                                        <span class="shrink-0 text-xs font-mono text-neutral-400 pt-1">Archived</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right Column: Active Commitments (5 Cols) -->
+                        <div
+                            class="lg:col-span-5 bg-white rounded-xl border border-neutral-200 p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <!-- Column Header -->
+                                <div class="flex items-center justify-between pb-3 border-b border-neutral-100">
+                                    <h3 class="text-base font-bold text-neutral-950 font-display">Active Commitments
+                                    </h3>
+                                    <span class="text-xs font-mono text-neutral-400">Sorted by Urgency</span>
+                                </div>
+                                <!-- Commitments Cards Stack -->
+                                <div class="flex flex-col gap-3 mt-4">
+                                    <!-- Commitment 1: Overdue Alert Card -->
+                                    <div class="border border-red-300 rounded-lg p-3 bg-red-50/40 flex flex-col gap-2">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="text-sm font-bold text-neutral-900">Product GA Launch Window</h4>
+                                            <span
+                                                class="px-1.5 py-0.5 bg-red-100 text-redline-red border border-red-200 font-mono text-[9px] font-bold uppercase rounded">OVERDUE</span>
+                                        </div>
+                                        <p class="text-[11px] font-mono text-neutral-500">Owner: Marcus Vance • Due: Oct
+                                            12, 2024</p>
+                                        <div class="pt-1 border-t border-red-200">
+                                            <span
+                                                class="text-[10px] font-mono font-bold text-red-600 tracking-wider">CONFLICT
+                                                WITH RULE #104.B</span>
+                                        </div>
+                                    </div>
+                                    <!-- Commitment 2: On Track Card -->
+                                    <div
+                                        class="border border-neutral-200 rounded-lg p-3 bg-white flex flex-col gap-2 shadow-xs">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="text-sm font-bold text-neutral-900">Perimeter Vulnerability
+                                                Report</h4>
+                                            <span
+                                                class="px-1.5 py-0.5 bg-neutral-900 text-white font-mono text-[9px] font-bold rounded">ON
+                                                TRACK</span>
+                                        </div>
+                                        <p class="text-[11px] font-mono text-neutral-500">Owner: Marcus T. • Due: Oct
+                                            08, 2024</p>
+                                        <div class="pt-1 border-t border-neutral-100">
+                                            <span class="text-[10px] font-mono text-neutral-500">Milestone locked and
+                                                signed</span>
+                                        </div>
+                                    </div>
+                                    <!-- Commitment 3: On Track Card -->
+                                    <div
+                                        class="border border-neutral-200 rounded-lg p-3 bg-white flex flex-col gap-2 shadow-xs">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="text-sm font-bold text-neutral-900">Cryptographic Audit Signoff
+                                            </h4>
+                                            <span
+                                                class="px-1.5 py-0.5 bg-neutral-900 text-white font-mono text-[9px] font-bold rounded">ON
+                                                TRACK</span>
+                                        </div>
+                                        <p class="text-[11px] font-mono text-neutral-500">Owner: Lead Cryptographer •
+                                            Due: Oct 19, 2024</p>
+                                        <div class="pt-1 border-t border-neutral-100">
+                                            <span class="text-[10px] font-mono text-neutral-500">14-day mandatory
+                                                observation cycle</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================== -->
+                <!-- VIEW 2: DEVICE CONNECTION VIEW                -->
+                <!-- ============================================== -->
+                <div class="hidden flex-col p-8 gap-6 max-w-7xl mx-auto w-full" id="view-devices">
+                    <div>
+                        <div
+                            class="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="">HARDWARE ENCLAVE</span>
+                            <span class="">•</span>
+                            <span class="">PERIPHERAL MESH</span>
+                        </div>
+                        <h1 class="text-2xl lg:text-3xl font-extrabold text-neutral-950 tracking-tight font-display">
+                            Device Connection Hub
+                        </h1>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Large Card: Phone Status -->
+                        <div
+                            class="lg:col-span-2 bg-white rounded-xl border border-neutral-200 p-6 shadow-sm flex flex-col justify-between">
+                            <div class="space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span
+                                            class="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block mb-1">LOCAL
+                                            SYNCHRONIZATION STATUS</span>
+                                        <h2
+                                            class="text-3xl font-extrabold text-neutral-950 font-display flex items-center gap-3">
+                                            Phone Connected
+                                            <span
+                                                class="w-3 h-3 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                                        </h2>
+                                    </div>
+                                    <span
+                                        class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-xs font-bold rounded-full">ENCRYPTED
+                                        BLE</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-100">
+                                    <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                                        <span class="text-[10px] font-mono text-neutral-400 uppercase block">Paired
+                                            Handset</span>
+                                        <span class="text-sm font-bold text-neutral-800 font-mono">REDLINE Mobile (Pixel
+                                            8 Pro)</span>
+                                    </div>
+                                    <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                                        <span class="text-[10px] font-mono text-neutral-400 uppercase block">Physical
+                                            Mesh Mode</span>
+                                        <span class="text-sm font-bold text-neutral-800 font-mono">5.2GHz Direct
+                                            Peer-to-Peer</span>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-neutral-50 border border-neutral-200 rounded-lg space-y-2">
+                                    <div class="flex justify-between text-xs font-mono">
+                                        <span class="text-neutral-500">Last Telemetry Ingestion:</span>
+                                        <span class="font-bold text-neutral-800">Today at 14:15 UTC</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs font-mono">
+                                        <span class="text-neutral-500">Protocol Handshake:</span>
+                                        <span class="font-bold text-emerald-600">ECDSA-P384 Verified</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs font-mono">
+                                        <span class="text-neutral-500">Office Kit Local Mesh:</span>
+                                        <span class="font-bold text-neutral-800">Operational // 0 Packets Dropped</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+                                <span class="text-xs text-neutral-400 font-mono">Node ID: RED-NODE-TX-88219</span>
+                                <button
+                                    class="px-4 py-2 border border-neutral-300 rounded-lg text-xs font-mono font-bold hover:bg-neutral-50 transition-colors">
+                                    Resync Handshake
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Right Card: Synced Records -->
+                        <div
+                            class="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3
+                                    class="text-sm font-bold text-neutral-900 font-display mb-4 flex items-center justify-between">
+                                    <span class="">Recently Received Feeds</span>
+                                    <span class="text-[10px] font-mono text-neutral-400">Past 24 Hours</span>
+                                </h3>
+                                <div class="space-y-3">
+                                    <div
+                                        class="p-3 rounded-lg border border-neutral-200 bg-neutral-50 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-neutral-900">Sprint 44 SecOps Review</p>
+                                            <p class="text-[10px] font-mono text-neutral-500">Received 12:44 • 18 audio
+                                                chunks</p>
+                                        </div>
+                                        <span class="text-emerald-600 text-xs font-bold">✓</span>
+                                    </div>
+                                    <div
+                                        class="p-3 rounded-lg border border-neutral-200 bg-neutral-50 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-neutral-900">Zero-Trust Architecture Sync
+                                            </p>
+                                            <p class="text-[10px] font-mono text-neutral-500">Received 09:15 • 32 audio
+                                                chunks</p>
+                                        </div>
+                                        <span class="text-emerald-600 text-xs font-bold">✓</span>
+                                    </div>
+                                    <div
+                                        class="p-3 rounded-lg border border-neutral-200 bg-neutral-50 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-neutral-900">Cryptographic Signing Drill
+                                            </p>
+                                            <p class="text-[10px] font-mono text-neutral-500">Received Yesterday • 12
+                                                chunks</p>
+                                        </div>
+                                        <span class="text-emerald-600 text-xs font-bold">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================== -->
+                <!-- VIEW 3: CONFLICT ANALYSIS VIEW                -->
+                <!-- ============================================== -->
+                <div class="hidden flex-col p-8 gap-6 max-w-7xl mx-auto w-full" id="view-conflicts">
+                    <div>
+                        <div
+                            class="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-redline-red"></span>
+                            <span class="">FORMAL AUDIT PROVER</span>
+                            <span class="">•</span>
+                            <span class="">TEMPORAL INCONSISTENCY</span>
+                        </div>
+                        <h1 class="text-2xl lg:text-3xl font-extrabold text-neutral-950 tracking-tight font-display">
+                            Conflict Analysis &amp; Ledger Proof
+                        </h1>
+                    </div>
+                    <!-- Proof Banner -->
+                    <div class="bg-[#fdeaea] border-2 border-red-500 rounded-xl p-6">
+                        <div
+                            class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-red-200 pb-4 mb-4">
+                            <div>
+                                <span
+                                    class="px-2 py-0.5 bg-red-600 text-white rounded font-mono text-[10px] font-bold uppercase">RULE
+                                    #104.B VIOLATION</span>
+                                <h2 class="text-xl font-extrabold text-neutral-900 mt-2 font-display">Launch Date Shift
+                                    Violates Mandatory Penetration Buffer</h2>
+                            </div>
+                            <div class="text-right font-mono">
+                                <span class="text-xs text-neutral-500 block">TEMPORAL DRIFT DELTA</span>
+                                <span class="text-2xl font-black text-redline-red">-7 DAYS COLLISION</span>
+                            </div>
+                        </div>
+                        <!-- Side by side comparison cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Evidence -->
+                            <div class="bg-white p-4 rounded-lg border border-red-200">
+                                <span
+                                    class="text-[10px] font-mono font-bold uppercase text-red-600 tracking-wider block mb-1">NEW
+                                    EVIDENCE (SOURCE: SLACK HUDDLE)</span>
+                                <h4 class="text-sm font-bold text-neutral-900">Product GA Launch: October 12, 2024</h4>
+                                <p class="text-xs text-neutral-600 mt-2 leading-relaxed">
+                                    Marcus Vance moved target release date up by 7 calendar days to capture market
+                                    timing window ahead of the scheduled audit completion.
+                                </p>
+                                <div class="mt-3 text-[11px] font-mono text-neutral-400">Hash: 8fbc..9910 • Signed by
+                                    Product Lead</div>
+                            </div>
+                            <!-- Right Evidence -->
+                            <div class="bg-white p-4 rounded-lg border border-neutral-300">
+                                <span
+                                    class="text-[10px] font-mono font-bold uppercase text-neutral-500 tracking-wider block mb-1">EXISTING
+                                    EVIDENCE (SOURCE: AUDIT SCHEDULE)</span>
+                                <h4 class="text-sm font-bold text-neutral-900">Mandatory Pen-Testing Buffer: Through Oct
+                                    19, 2024</h4>
+                                <p class="text-xs text-neutral-600 mt-2 leading-relaxed">
+                                    SecOps standard governance mandates complete 14-day immutable quarantine and active
+                                    pen-testing verification prior to production ingress.
+                                </p>
+                                <div class="mt-3 text-[11px] font-mono text-neutral-400">Hash: 3a2c..5521 • SecOps Board
+                                    Verified</div>
+                            </div>
+                        </div>
+                        <!-- Mathematical Proof Logic Box -->
+                        <div
+                            class="mt-4 p-3 bg-neutral-900 text-neutral-200 rounded-lg font-mono text-xs overflow-x-auto">
+                            <span class="text-neutral-500">// Formal Logic Audit Invariant:</span><br>
+                            assert( Date(Launch_Window_Start) &gt;= Date(SecOps_Buffer_End) );<br>
+                            <span class="text-red-400">FAIL: 2024-10-12 &lt; 2024-10-19 [Deficit: 7 Days, Security
+                                Guarantee Broken]</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================== -->
+                <!-- VIEW 4: CALENDAR VIEW                         -->
+                <!-- ============================================== -->
+                <div class="flex-col p-8 gap-6 max-w-7xl mx-auto w-full flex" id="view-calendar"><!-- Header Bar -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div
+                                class="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                                <span class="w-2 h-2 rounded-full bg-redline-red"></span>
+                                <span class="">TEMPORAL LEDGER</span>
+                                <span class="">•</span>
+                                <span class="">OCTOBER 2024</span>
+                            </div>
+                            <h1
+                                class="text-2xl lg:text-3xl font-extrabold text-neutral-950 tracking-tight font-display">
+                                SecOps Commitment Calendar &amp; Range Auditor
+                            </h1>
+                        </div>
+
+                        <!-- Quick Range Selector Presets & Range Export Actions -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <div
+                                class="inline-flex p-1 bg-neutral-100 rounded-lg border border-neutral-200 text-xs font-mono font-medium">
+                                <button
+                                    class="px-2.5 py-1 rounded bg-white font-bold text-neutral-900 shadow-xs border border-neutral-200 transition-colors"
+                                    id="preset-freeze-range">14-Day Freeze Window</button>
+                                <button
+                                    class="px-2.5 py-1 rounded text-neutral-600 hover:text-neutral-900 transition-colors"
+                                    id="preset-conflict-window">Collision Zone (Oct 12-19)</button>
+                                <button
+                                    class="px-2.5 py-1 rounded text-neutral-600 hover:text-neutral-900 transition-colors"
+                                    id="preset-full-month">Full Month</button>
+                            </div>
+                            <button
+                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-xs font-mono font-bold text-neutral-700 shadow-xs transition-colors">
+                                <span class="">📥</span> Export Range
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Range & Collision Overview Banner -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <!-- Card 1: Selected Range -->
+                        <div
+                            class="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-1">
+                                <span
+                                    class="text-[10px] font-mono font-semibold uppercase tracking-wider text-neutral-400">SELECTED
+                                    DATE RANGE</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-neutral-900 text-white font-mono text-[9px] font-bold uppercase">ACTIVE
+                                    FILTER</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-xl font-bold font-mono text-neutral-950">Oct 05 — Oct 19</span>
+                                <span class="text-xs font-mono font-medium text-neutral-500">(14 Days)</span>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-2 font-mono">14-Day Mandatory Cryptographic Audit
+                                Freeze Window</p>
+                        </div>
+
+                        <!-- Card 2: Filled Milestone Days -->
+                        <div
+                            class="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-1">
+                                <span
+                                    class="text-[10px] font-mono font-semibold uppercase tracking-wider text-neutral-400">FILLED
+                                    MILESTONES</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[9px] font-bold">4
+                                    LOGGED</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-neutral-100 font-mono text-[10px] text-neutral-700 font-semibold">Oct
+                                    02</span>
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-neutral-100 font-mono text-[10px] text-neutral-700 font-semibold">Oct
+                                    08</span>
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-mono text-[10px] font-bold">Oct
+                                    12 ⚠️</span>
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold">Oct
+                                    19 ✓</span>
+                            </div>
+                            <p class="text-xs text-neutral-500 mt-2 font-mono">2 immutable freeze proofs, 1 conflict, 1
+                                audit signoff</p>
+                        </div>
+
+                        <!-- Card 3: Overlap & Conflict Alert -->
+                        <div
+                            class="bg-[#fdeaea] rounded-xl border-2 border-red-500 p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-1">
+                                <span
+                                    class="text-[10px] font-mono font-bold uppercase tracking-wider text-red-700">OVERLAP
+                                    CONFLICT ALERT</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-red-600 text-white font-mono text-[9px] font-bold uppercase">-7D
+                                    DEFICIT</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-base font-bold font-mono text-red-700">Oct 12 → Oct 19</span>
+                                <span class="text-xs font-mono font-bold text-red-600">Violation</span>
+                            </div>
+                            <p class="text-xs text-neutral-700 mt-1 font-mono text-[11px]">Product GA Launch collides
+                                with required verification buffer.</p>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Calendar Range Selector Component -->
+                    <div class="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm space-y-4">
+                        <!-- Month Header & Legend -->
+                        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-neutral-100 gap-3">
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg font-bold text-neutral-950 font-display">October 2024</span>
+                                <span
+                                    class="px-2 py-0.5 bg-neutral-100 border border-neutral-200 rounded font-mono text-xs text-neutral-600 font-semibold">UTC+00:00
+                                    (On-Device Local)</span>
+                            </div>
+
+                            <!-- Range Indicator Legend -->
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-neutral-600">
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded-full bg-neutral-900 border border-neutral-900 inline-block"></span>
+                                    <span class="">Range Start / End</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded bg-neutral-100 border border-neutral-300 inline-block"></span>
+                                    <span class="">Selected Range</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="w-3 h-3 rounded bg-[#fdeaea] border border-red-500 inline-block"></span>
+                                    <span class="text-red-600 font-semibold">Collision Overlap</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-redline-red inline-block"></span>
+                                    <span class="">Filled Milestone</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div
+                            class="grid grid-cols-7 gap-px bg-neutral-200 border border-neutral-200 rounded-lg overflow-hidden text-xs">
+                            <!-- Weekday Labels -->
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                MON</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                TUE</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                WED</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                THU</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                FRI</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                SAT</div>
+                            <div
+                                class="bg-neutral-50 py-2.5 text-center font-mono font-bold text-neutral-500 text-[11px]">
+                                SUN</div>
+
+                            <!-- Row 1: 30 Sep, 01 - 06 Oct -->
+                            <div class="bg-neutral-50/50 h-24 p-2 text-left font-mono text-neutral-300 select-none">30
+                            </div>
+
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">01</span>
+                            </div>
+
+                            <!-- Oct 02 (Filled Milestone) -->
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-900 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold">02</span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-redline-red"></span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-neutral-100 border border-neutral-200 rounded text-[9px] font-sans truncate font-semibold text-neutral-700">
+                                    SecSync Audit
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">03</span>
+                            </div>
+
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">04</span>
+                            </div>
+
+                            <!-- Oct 05 (RANGE START) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono relative border-2 border-neutral-900 transition-colors cursor-pointer shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-neutral-900 text-white font-bold text-[11px]">05</span>
+                                    <span
+                                        class="text-[9px] font-bold text-neutral-900 font-mono tracking-wider uppercase">RANGE
+                                        START</span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-white border border-neutral-300 rounded text-[9px] font-sans font-semibold text-neutral-800 shadow-xs">
+                                    🔒 Freeze Window Opens
+                                </div>
+                            </div>
+
+                            <!-- Oct 06 (RANGE MIDDLE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">06</span>
+                                    <span class="text-[8px] text-neutral-400 font-mono">D-02</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-neutral-400">Buffer Active</div>
+                            </div>
+
+                            <!-- Row 2: 07 - 13 Oct -->
+                            <!-- Oct 07 (RANGE MIDDLE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">07</span>
+                                    <span class="text-[8px] text-neutral-400 font-mono">D-03</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-neutral-400">Buffer Active</div>
+                            </div>
+
+                            <!-- Oct 08 (RANGE MIDDLE + FILLED MILESTONE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-900 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-neutral-950">08</span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-redline-red"></span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-neutral-900 text-white rounded text-[9px] font-sans truncate font-bold shadow-xs">
+                                    ✓ Perimeter Locked
+                                </div>
+                            </div>
+
+                            <!-- Oct 09 (RANGE MIDDLE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">09</span>
+                                    <span class="text-[8px] text-neutral-400 font-mono">D-05</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-neutral-400">Audit Progressing</div>
+                            </div>
+
+                            <!-- Oct 10 (RANGE MIDDLE + MILESTONE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">10</span>
+                                    <span class="text-[8px] text-neutral-400 font-mono">D-06</span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-white border border-neutral-200 rounded text-[9px] font-sans truncate font-medium text-neutral-700">
+                                    Perimeter Baseline
+                                </div>
+                            </div>
+
+                            <!-- Oct 11 (RANGE MIDDLE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-200/70 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">11</span>
+                                    <span class="text-[8px] text-neutral-400 font-mono">D-07</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-neutral-400">Pre-Release QA</div>
+                            </div>
+
+                            <!-- Oct 12 (COLLISION OVERLAP START + CONFLICT MILESTONE) -->
+                            <div
+                                class="bg-[#fdeaea] h-24 p-2 text-left font-mono relative border-2 border-red-500 shadow-sm cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold text-[11px]">12</span>
+                                    <span class="text-[9px] font-bold text-red-700 font-mono">OVERLAP</span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-red-600 text-white rounded text-[9px] font-sans truncate font-extrabold shadow-xs">
+                                    ⚠️ GA Launch Collision
+                                </div>
+                            </div>
+
+                            <!-- Oct 13 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">13</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+1d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Quarantine Breach</div>
+                            </div>
+
+                            <!-- Row 3: 14 - 20 Oct -->
+                            <!-- Oct 14 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">14</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+2d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Deficit Active</div>
+                            </div>
+
+                            <!-- Oct 15 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">15</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+3d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Deficit Active</div>
+                            </div>
+
+                            <!-- Oct 16 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">16</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+4d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Deficit Active</div>
+                            </div>
+
+                            <!-- Oct 17 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">17</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+5d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Deficit Active</div>
+                            </div>
+
+                            <!-- Oct 18 (COLLISION OVERLAP MIDDLE) -->
+                            <div
+                                class="bg-red-50/70 h-24 p-2 text-left font-mono text-red-700 hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">18</span>
+                                    <span class="text-[8px] text-red-500 font-bold font-mono">+6d deficit</span>
+                                </div>
+                                <div class="mt-2 text-[9px] font-mono text-red-600">Deficit Active</div>
+                            </div>
+
+                            <!-- Oct 19 (RANGE END + FILLED MILESTONE) -->
+                            <div
+                                class="bg-neutral-100 h-24 p-2 text-left font-mono relative border-2 border-neutral-900 transition-colors cursor-pointer shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-neutral-900 text-white font-bold text-[11px]">19</span>
+                                    <span
+                                        class="text-[9px] font-bold text-neutral-900 font-mono tracking-wider uppercase">RANGE
+                                        END</span>
+                                </div>
+                                <div
+                                    class="mt-1 p-1 bg-emerald-100 border border-emerald-200 text-emerald-800 rounded text-[9px] font-sans truncate font-bold">
+                                    🛡️ SecOps Signoff Locked
+                                </div>
+                            </div>
+
+                            <!-- Oct 20 -->
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">20</span>
+                            </div>
+
+                            <!-- Row 4: 21 - 27 Oct -->
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">21</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">22</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">23</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">24</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">25</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">26</span>
+                            </div>
+                            <div
+                                class="bg-white h-24 p-2 text-left font-mono text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer">
+                                <span class="font-medium">27</span>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Inspector Details of Selected Range -->
+                        <div
+                            class="p-4 rounded-lg bg-neutral-50 border border-neutral-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                                    14d
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-neutral-900 font-display">Cryptographic Audit
+                                        Freeze Interval</p>
+                                    <p class="text-[11px] font-mono text-neutral-500">Span: 2024-10-05T00:00:00Z to
+                                        2024-10-19T23:59:59Z • Invariant check status: <span
+                                            class="text-red-600 font-bold">FAIL (Rule #104.B)</span></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="px-3 py-1.5 rounded-lg border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-mono font-bold transition-colors"
+                                    onclick="switchView('conflicts')">
+                                    Open Conflict Prover →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- END: DesktopWindowFrame -->
+    <!-- BEGIN: InteractiveTabScript -->
+    <script data-purpose="tab-navigation">
+        /**
+         * Switch visible application view based on sidebar selection
+         * @param {string} viewName - 'dashboard' | 'devices' | 'conflicts' | 'calendar'
+         */
+        function switchView(viewName) {
+            // All Views
+            const views = ['dashboard', 'devices', 'conflicts', 'calendar'];
+
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`nav-${v}`);
+
+                if (el) {
+                    if (v === viewName) {
+                        el.classList.remove('hidden');
+                        el.classList.add('flex');
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex');
+                    }
+                }
+
+                if (btn) {
+                    if (v === viewName) {
+                        btn.classList.add('bg-red-50', 'border-red-200');
+                        btn.classList.remove('hover:bg-neutral-100');
+                    } else {
+                        btn.classList.remove('bg-red-50', 'border-red-200');
+                        btn.classList.add('hover:bg-neutral-100');
+                    }
+                }
+            });
+        }
+    </script>
+    <!-- END: InteractiveTabScript -->
+
+
+</body>
+
+</html>

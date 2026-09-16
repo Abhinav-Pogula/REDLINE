@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>REDLINE // Sovereign Forensic Intelligence OS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#e5342b',
+                            redDark: '#c9271f',
+                            redSoft: '#fdeaea',
+                            redBorder: '#f8b4b0',
+                            bg: '#faf9f9',
+                            surface: '#ffffff',
+                            card: '#ffffff',
+                            border: '#e5e5e5',
+                            dark: '#111111',
+                            grey: '#8a8a8a',
+                            subtle: '#f5f3f3',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'wave-1': 'wave 0.9s ease-in-out infinite alternate',
+                        'wave-2': 'wave 1.2s ease-in-out infinite alternate 0.2s',
+                        'wave-3': 'wave 0.7s ease-in-out infinite alternate 0.4s',
+                    },
+                    keyframes: {
+                        wave: {
+                            '0%': { height: '8px' },
+                            '100%': { height: '48px' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0f1013;
+            font-family: 'Inter', sans-serif;
+            color: #111111;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .screen-transition {
+            transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(6px);
+            position: absolute;
+            inset: 0;
+            visibility: hidden;
+        }
+
+        .screen-active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+            position: relative;
+            visibility: visible;
+        }
+
+        /* Card stack styling */
+        .stack-card-0 {
+            transform: translateY(0px) scale(1);
+            z-index: 30;
+        }
+
+        .stack-card-1 {
+            transform: translateY(8px) scale(0.97);
+            z-index: 20;
+            opacity: 0.88;
+        }
+
+        .stack-card-2 {
+            transform: translateY(16px) scale(0.94);
+            z-index: 10;
+            opacity: 0.65;
+        }
+
+        /* Waveform bars */
+        .wf-bar {
+            width: 3px;
+            background-color: #111111;
+            border-radius: 9999px;
+            transition: height 0.15s ease;
+        }
+
+        .wf-bar.red {
+            background-color: #e5342b;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-0 md:p-6 select-none bg-neutral-950">
+    <!-- Device Frame wrapper -->
+    <div
+        class="relative w-full max-w-[430px] h-[100dvh] md:h-[910px] bg-brand-bg md:rounded-[44px] shadow-2xl md:border-[8px] md:border-neutral-800 flex flex-col overflow-hidden">
+        <!-- TOP HARDWARE NOTCH / TELEMETRY STATUS BAR -->
+        <header
+            class="w-full bg-brand-bg/95 backdrop-blur-md pt-3 pb-2 px-5 border-b border-brand-border/60 z-40 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2">
+                <!-- Hamburger Menu Button triggers slide-in Navigation Drawer -->
+                <button onclick="drawerController.open()" id="headerMenuBtn" aria-label="Open Navigation Menu"
+                    class="p-1.5 -ml-1.5 text-neutral-800 hover:text-brand-red transition relative">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"></path>
+                    </svg>
+                </button>
+                <!-- Contextual Back Button (hidden on dashboard) -->
+                <button onclick="router.back()" id="headerBackBtn"
+                    class="hidden items-center gap-1 text-xs font-mono tracking-wider font-semibold text-neutral-600 hover:text-neutral-900 transition">
+                    <svg class="w-4 h-4 text-brand-red stroke-[2.5]" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
+                    </svg>
+                    <span id="headerBackLabel">RETURN</span>
+                </button>
+            </div>
+            <!-- Center Wordmark / Screen Title -->
+            <div class="text-center cursor-pointer" onclick="router.navigate('dashboard')">
+                <h1 class="font-display font-black tracking-[0.24em] text-sm text-neutral-900 leading-none">REDLINE</h1>
+                <p id="topSubStatus" class="font-mono text-[9px] tracking-widest text-neutral-400 mt-0.5 uppercase">
+                    ON-DEVICE // ZERO INGRESS</p>
+            </div>
+            <!-- Top-Right Action: Profile or Enclave Status -->
+            <div class="flex items-center gap-2">
+                <div id="enclavePill"
+                    class="hidden lg:flex items-center gap-1.5 px-2 py-0.5 bg-white border border-brand-border rounded-full shadow-xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-red animate-ping"></span>
+                    <span class="font-mono text-[9px] font-semibold text-neutral-600">SECURE</span>
+                </div>
+                <button onclick="router.navigate('profile')" aria-label="Profile"
+                    class="w-8 h-8 rounded-full bg-brand-red text-white flex items-center justify-center font-display font-bold text-xs tracking-wider ring-2 ring-brand-red/20 shadow-xs hover:scale-105 active:scale-95 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- QUICK NAVIGATION BREADCRUMB BAR -->
+        <div
+            class="bg-neutral-100/90 border-b border-brand-border px-4 py-1.5 flex items-center justify-between text-[10px] font-mono shrink-0">
+            <div class="flex items-center gap-1.5 text-neutral-500 overflow-x-auto hide-scrollbar">
+                <span class="text-brand-red font-bold">SEGMENT:</span>
+                <span id="currentScreenBreadcrumb"
+                    class="text-neutral-900 font-semibold uppercase bg-white px-2 py-0.5 rounded border border-neutral-200">1.
+                    DASHBOARD DECK</span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+                <button onclick="demoSequence.next()" title="Step to next scenario"
+                    class="px-2 py-0.5 bg-neutral-900 text-white rounded font-mono text-[9px] hover:bg-brand-red transition flex items-center gap-1">
+                    <span>NEXT FLOW</span>
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN SCROLLABLE APP BODY -->
+        <main id="appViewport" class="flex-1 overflow-y-auto hide-scrollbar relative bg-brand-bg">
+            <!-- ================================================================= -->
+            <!-- SEGMENT 1: DASHBOARD (SCREEN_11 / SCREEN_17)                      -->
+            <!-- ================================================================= -->
+            <section id="view-dashboard" class="screen-transition screen-active p-4 space-y-4 pb-28">
+
+                <!-- Telemetry Sub-header -->
+                <div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-1">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                        <span class="font-bold tracking-wider text-neutral-900">STREAM FEED</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-1.5 bg-white border border-brand-border px-2 py-0.5 rounded-full shadow-xs">
+                        <svg class="w-3 h-3 text-neutral-700" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z">
+                            </path>
+                        </svg>
+                        <span class="text-[10px] font-bold text-neutral-700">ZERO-TRUST SECURED</span>
+                    </div>
+                </div>
+
+                <!-- MONITORED MEETINGS: INTERACTIVE STACKED CAROUSEL DECK -->
+                <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <!-- Top-left stacked-cards icon with small red circular notification badge showing unreviewed items count (Item 1 requested) -->
+                                <div class="relative inline-flex items-center">
+                                    <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor"
+                                        stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m-15 0A2.25 2.25 0 003 12v6a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-6a2.25 2.25 0 00-1.5-2.122">
+                                        </path>
+                                    </svg>
+                                    <span
+                                        class="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-brand-red text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-xs">3</span>
+                                </div>
+                                <span
+                                    class="text-[11px] font-mono font-semibold tracking-wider text-neutral-500 uppercase">MONITORED
+                                    MEETINGS</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-mono text-neutral-400">Card <span id="deckCounter"
+                                        class="text-neutral-900 font-bold">1</span> of 3</span>
+                                <span
+                                    class="text-[10px] font-mono font-bold bg-neutral-200 text-neutral-800 px-1.5 py-0.5 rounded">4
+                                    TOTAL</span>
+                            </div>
+                        </div>
+
+                        <!-- SUMMARY ROW directly beneath MONITORED MEETINGS: Decisions count & Commitments count (Item 1 requested) -->
+                        <div
+                            class="grid grid-cols-2 gap-3 bg-white border border-neutral-200 rounded-2xl p-3 shadow-2xs">
+                            <div class="flex flex-col">
+                                <span class="font-display font-bold text-2xl text-neutral-950 leading-none">14</span>
+                                <span
+                                    class="font-mono text-[10px] tracking-wider text-neutral-400 uppercase mt-1 font-semibold">Decisions</span>
+                            </div>
+                            <div class="flex flex-col border-l border-neutral-100 pl-3">
+                                <span class="font-display font-bold text-2xl text-brand-red leading-none">5</span>
+                                <span
+                                    class="font-mono text-[10px] tracking-wider text-neutral-400 uppercase mt-1 font-semibold">Commitments</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Stack Container -->
+                    <div class="relative h-[152px] w-full" id="meetingStackDeck">
+                        <!-- Card 1 (Active Top) -->
+                        <div id="deckCard0" onclick="router.navigate('result')"
+                            class="absolute inset-0 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm cursor-pointer transition-all duration-300 stack-card-0 hover:border-brand-red/50">
+                            <div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 mb-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="p-1 rounded bg-red-50 text-brand-red">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0013.5 5.25h-9A2.25 2.25 0 002.25 7.5v9A2.25 2.25 0 004.5 18.75z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                    <span class="font-bold text-neutral-800">GOOGLE MEET</span>
+                                    <span>•</span>
+                                    <span>SEP 18</span>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                            </div>
+                            <h3 class="font-display font-bold text-base text-neutral-950 leading-snug">Q4 Infrastructure
+                                Security Review</h3>
+                            <p class="text-xs text-neutral-500 font-mono mt-1 flex items-center gap-2">
+                                <span>⏱ 42 min</span>
+                                <span>•</span>
+                                <span class="text-neutral-900 font-semibold">4 Key Decisions</span>
+                            </p>
+                            <div class="flex items-center justify-between mt-3 pt-2 border-t border-neutral-100">
+                                <div class="flex items-center -space-x-1.5">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-neutral-200 border border-white text-[9px] font-mono font-bold flex items-center justify-center text-neutral-700">AK</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-neutral-300 border border-white text-[9px] font-mono font-bold flex items-center justify-center text-neutral-700">MR</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-red-100 border border-white text-[8px] font-mono font-bold flex items-center justify-center text-brand-red">+2</span>
+                                </div>
+                                <span
+                                    class="text-xs font-mono font-bold text-brand-red flex items-center gap-1 group-hover:translate-x-0.5 transition">
+                                    Inspect Result <span class="text-base leading-none">→</span>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div id="deckCard1"
+                            class="absolute inset-0 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm transition-all duration-300 stack-card-1">
+                            <div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 mb-2">
+                                <span class="font-bold text-neutral-700">ZOOM // SECSYNC</span>
+                                <span>OCT 02</span>
+                            </div>
+                            <h3 class="font-display font-bold text-sm text-neutral-900">API Gateway 14-Day Audit
+                                Schedule</h3>
+                            <p class="text-xs text-neutral-500 font-mono mt-1">SecOps team confirms immutable compliance
+                                freeze.</p>
+                        </div>
+                        <!-- Card 3 -->
+                        <div id="deckCard2"
+                            class="absolute inset-0 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm transition-all duration-300 stack-card-2">
+                            <div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 mb-2">
+                                <span class="font-bold text-neutral-700">SLACK HUDDLE</span>
+                                <span>OCT 08</span>
+                            </div>
+                            <h3 class="font-display font-bold text-sm text-neutral-900">Pen-testing Verification
+                                Milestone</h3>
+                            <p class="text-xs text-neutral-500 font-mono mt-1">Zero blocker verified by Lead
+                                Cryptographer.</p>
+                        </div>
+                    </div>
+                    <!-- Carousel / Deck Controls -->
+                    <div class="flex items-center justify-between pt-1">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="deckController.prev()" aria-label="Previous meeting"
+                                class="w-7 h-7 rounded-full bg-white border border-brand-border text-neutral-700 hover:bg-neutral-50 active:scale-95 flex items-center justify-center transition shadow-2xs">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button onclick="deckController.next()" aria-label="Next meeting"
+                                class="w-7 h-7 rounded-full bg-white border border-brand-border text-neutral-700 hover:bg-neutral-50 active:scale-95 flex items-center justify-center transition shadow-2xs">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
+                                </svg>
+                            </button>
+                            <span class="text-[10px] font-mono text-neutral-400 ml-1">Swipe or click arrows</span>
+                        </div>
+                        <!-- Pagination dots -->
+                        <div class="flex items-center gap-1.5" id="deckDots">
+                            <span class="w-4 h-1.5 rounded-full bg-brand-red transition-all"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-neutral-300"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-neutral-300"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AMBIENT STATUS PILL -->
+                <div
+                    class="w-full bg-white border border-brand-border/80 rounded-full px-4 py-2.5 flex items-center justify-between shadow-2xs">
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <span class="w-2.5 h-2.5 rounded-full bg-brand-red animate-pulse shrink-0"></span>
+                        <p class="text-xs text-neutral-600 italic font-mono truncate">REDLINE is monitoring in the
+                            background...</p>
+                    </div>
+                    <button onclick="router.navigate('capture')"
+                        class="font-mono text-[10px] text-brand-red font-bold hover:underline shrink-0 pl-2">
+                        CAPTURE NOW →
+                    </button>
+                </div>
+
+                <!-- CENTERPIECE: HIGH PRIORITY CONTRADICTION ALERT CARD -->
+                <div onclick="router.navigate('audit')"
+                    class="bg-[#fdeaea] border-2 border-brand-red rounded-2xl p-4 shadow-md cursor-pointer transition hover:scale-[1.01] relative overflow-hidden group">
+                    <div
+                        class="absolute -right-6 -bottom-6 w-28 h-28 bg-brand-red/10 rounded-full blur-xl pointer-events-none">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <div
+                            class="flex items-center gap-1.5 text-brand-red font-mono text-xs font-bold tracking-wider">
+                            <svg class="w-4 h-4 fill-brand-red text-white" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span>CONTRADICTION DETECTED</span>
+                        </div>
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-brand-red text-white font-mono text-[9px] font-bold tracking-widest uppercase shadow-xs">
+                            ● CONFLICTING
+                        </span>
+                    </div>
+                    <h2 class="font-display font-bold text-base text-neutral-900 leading-snug">Launch Date Shift
+                        Violates Security Buffer</h2>
+                    <p class="text-xs text-neutral-700 font-sans mt-1.5 leading-relaxed">
+                        Product moved launch to <span class="font-semibold text-neutral-950">Oct 12</span>, but SecOps
+                        mandatory 14-day penetration audit buffer remains scheduled through <span
+                            class="font-semibold text-neutral-950">Oct 19</span>.
+                    </p>
+                    <div
+                        class="my-3 space-y-1.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 border border-brand-red/20 font-mono text-[11px]">
+                        <div class="flex items-center justify-between text-neutral-700">
+                            <span
+                                class="font-bold text-neutral-500 bg-neutral-200/70 px-1.5 py-0.5 rounded text-[9px]">CALL
+                                A</span>
+                            <span class="truncate ml-2">ProdSync: "Target release set to Oct 12."</span>
+                        </div>
+                        <div class="flex items-center justify-between text-brand-red font-medium">
+                            <span class="font-bold text-brand-red bg-red-100 px-1.5 py-0.5 rounded text-[9px]">CALL
+                                B</span>
+                            <span class="truncate ml-2 font-bold">SecSync: "Sign-off blocked until Oct 19."</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 border-t border-brand-red/20 text-xs font-mono">
+                        <span class="text-neutral-500 text-[10px] tracking-wider uppercase font-semibold">RULE 1 • DATE
+                            SHIFT VS CONSTRAINT</span>
+                        <span class="text-brand-red font-bold flex items-center gap-1 group-hover:underline">
+                            View Evidence <span class="text-base leading-none">→</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- JUDGE DEMO MODE CARD -->
+                <div class="bg-white border-2 border-dashed border-neutral-300 rounded-2xl p-4 shadow-2xs">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 font-display font-bold text-sm text-neutral-900">
+                                <span class="text-base">🧰</span>
+                                <span>Judge Demo Mode</span>
+                            </div>
+                            <p class="text-xs text-neutral-500 leading-tight">
+                                1-Tap sequence reset: Meeting 1 → 2 → 3 → conflict replay.
+                            </p>
+                        </div>
+                        <button onclick="demoSequence.runFull()"
+                            class="px-3 py-2 bg-brand-red hover:bg-brand-redDark active:scale-95 text-white rounded-xl font-mono text-xs font-bold flex items-center gap-1.5 shadow-sm transition shrink-0">
+                            <span>▶</span>
+                            <span>Run Demo</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 2: ACTIVE CAPTURE / ACOUSTIC INTAKE (SCREEN_16)           -->
+            <!-- ================================================================= -->
+            <section id="view-capture" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+
+                <!-- Capture Mode State Bar -->
+                <div class="bg-[#fdeaea] border-l-4 border-brand-red rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5 font-display font-bold text-sm text-neutral-900">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-red animate-ping"></span>
+                            <span>REDLINE IS CAPTURING</span>
+                        </div>
+                        <p class="text-[11px] font-mono text-neutral-500 mt-0.5">DEVICE AUDIO + MICROPHONE</p>
+                    </div>
+                    <div class="text-right">
+                        <span
+                            class="px-2 py-0.5 bg-white border border-brand-red/30 rounded text-[9px] font-mono font-bold text-brand-red">STATE
+                            A // LIVE</span>
+                        <p class="text-[9px] font-mono text-neutral-500 mt-1">48kHz • RAW PCM</p>
+                    </div>
+                </div>
+
+                <!-- Center Acoustic Intake Console -->
+                <div
+                    class="bg-white border border-neutral-200 rounded-3xl p-6 text-center shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between text-[11px] font-mono text-neutral-400 mb-2">
+                        <span>SESSION: TX-804-992</span>
+                        <span class="flex items-center gap-1 text-neutral-700 font-bold">
+                            <svg class="w-3.5 h-3.5 text-brand-red" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            AIR-GAPPED
+                        </span>
+                    </div>
+                    <div class="font-mono text-4xl font-bold tracking-tight text-neutral-900 my-1" id="captureTimer">
+                        00:04:20
+                    </div>
+                    <p class="font-mono text-[10px] text-neutral-400 flex items-center justify-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-red"></span>
+                        BUFFER IN-RAM: <span id="bufferSize" class="text-neutral-700 font-bold">3.4 MB</span>
+                    </p>
+                    <div class="flex items-center justify-center gap-1.5 h-16 my-5" id="waveformContainer"></div>
+                    <div class="relative inline-flex items-center justify-center my-2">
+                        <div class="absolute w-24 h-24 rounded-full bg-brand-red/15 animate-ping pointer-events-none">
+                        </div>
+                        <button id="mainMicTrigger" onclick="captureEngine.toggleRecord()"
+                            class="relative w-20 h-20 rounded-full bg-brand-red text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition">
+                            <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 01-3-3V4.5a3 3 0 116 0V12a3 3 0 01-3 3z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="bg-brand-bg rounded-xl p-2.5 mt-4 border border-neutral-200 text-left">
+                        <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500 mb-1">
+                            <span class="flex items-center gap-1 text-brand-red font-bold">
+                                <span>🎙</span>
+                                <span>SYNTHESIS:</span>
+                            </span>
+                            <span class="text-neutral-700 font-bold">99.4% CONF</span>
+                        </div>
+                        <p id="liveSynthesisText" class="text-xs font-mono text-neutral-800 italic">
+                            "...confirming non-compression of 14-day security observation schedule..."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Acoustic Intake Source Pills -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                        <span>ACOUSTIC INTAKE SOURCE</span>
+                        <span>SYS ID: CAP-01</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-1">
+                        <button
+                            class="source-chip active px-3 py-1.5 rounded-full bg-brand-red text-white font-mono text-xs font-bold shadow-xs shrink-0 flex items-center gap-1">
+                            <span>✨</span> Auto
+                        </button>
+                        <button
+                            class="source-chip px-3 py-1.5 rounded-full bg-white border border-neutral-300 text-neutral-700 font-mono text-xs hover:border-brand-red transition shrink-0">Meet</button>
+                        <button
+                            class="source-chip px-3 py-1.5 rounded-full bg-white border border-neutral-300 text-neutral-700 font-mono text-xs hover:border-brand-red transition shrink-0">Zoom</button>
+                        <button
+                            class="source-chip px-3 py-1.5 rounded-full bg-white border border-neutral-300 text-neutral-700 font-mono text-xs hover:border-brand-red transition shrink-0">Teams</button>
+                        <button
+                            class="source-chip px-3 py-1.5 rounded-full bg-white border border-neutral-300 text-neutral-700 font-mono text-xs hover:border-brand-red transition shrink-0">WhatsApp</button>
+                    </div>
+                </div>
+
+                <!-- FORENSIC PIPELINE STEP TRACKER -->
+                <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-2">
+                    <div class="flex items-center justify-between text-[10px] font-mono">
+                        <span class="text-neutral-500 font-bold uppercase">FORENSIC PIPELINE VECTOR</span>
+                        <span id="pipelineStepLabel" class="text-brand-red font-bold">ACTIVE STEP 4/6</span>
+                    </div>
+                    <div class="grid grid-cols-6 gap-1 text-center text-[8px] font-mono font-bold">
+                        <div class="p-1 rounded bg-brand-red text-white">CAPTURE</div>
+                        <div class="p-1 rounded bg-brand-red text-white">STRUCT</div>
+                        <div class="p-1 rounded bg-brand-red text-white">RECALL</div>
+                        <div class="p-1 rounded bg-brand-red text-white animate-pulse">CMPR •</div>
+                        <div class="p-1 rounded bg-neutral-200 text-neutral-500">FLAG</div>
+                        <div class="p-1 rounded bg-neutral-200 text-neutral-500">PROVE</div>
+                    </div>
+                </div>
+
+                <!-- Privacy Guarantee Note -->
+                <div class="bg-neutral-100 rounded-xl p-3 flex items-start gap-2.5 text-xs text-neutral-600">
+                    <svg class="w-4 h-4 text-neutral-500 mt-0.5 shrink-0" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z">
+                        </path>
+                    </svg>
+                    <p class="leading-relaxed">REDLINE listens with your permission and processes everything locally on
+                        this device. No raw audio is streamed externally.</p>
+                </div>
+
+                <!-- Capture Controls -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="captureEngine.togglePause()" id="pauseBtn"
+                        class="py-3 px-4 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-900 rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition">
+                        <span>⏸</span>
+                        <span id="pauseBtnLabel">PAUSE</span>
+                    </button>
+                    <button onclick="captureEngine.stopAndCompile()"
+                        class="py-3 px-4 bg-brand-red hover:bg-brand-redDark active:scale-95 text-white rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                        <span>⏹</span>
+                        <span>STOP &amp; COMPILE</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 3: POST-MEETING RESULT SCREEN (SCREEN_14)                 -->
+            <!-- ================================================================= -->
+            <section id="view-result" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+
+                <!-- Top Processing Result Header -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                            <span class="font-bold text-neutral-700">MEETING PROCESSED</span>
+                            <span>•</span>
+                            <span>14:02 UTC</span>
+                        </div>
+                        <span class="bg-neutral-200 text-neutral-800 px-1.5 py-0.5 rounded font-bold">SESSION
+                            #894-F</span>
+                    </div>
+                    <h2 class="font-display font-bold text-xl text-neutral-950">SecOps &amp; Core Gateway Sync</h2>
+                    <p class="text-xs font-mono text-neutral-500 flex items-center gap-2">
+                        <span>⏱ 42m 18s Duration</span>
+                        <span>•</span>
+                        <span class="truncate">SHA-256: 8a7c...39f</span>
+                    </p>
+                </div>
+
+                <!-- Voiceprint Forensics Active Bar -->
+                <div
+                    class="bg-white border border-neutral-200 rounded-2xl p-3 flex items-center justify-between shadow-2xs">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-0.5 h-4">
+                            <span class="w-1 h-3 bg-brand-red rounded-full"></span>
+                            <span class="w-1 h-4 bg-brand-red rounded-full"></span>
+                            <span class="w-1 h-2 bg-brand-red rounded-full"></span>
+                            <span class="w-1 h-3 bg-brand-red rounded-full"></span>
+                        </div>
+                        <span class="font-mono text-xs font-bold text-neutral-800">VOICEPRINT FORENSICS ACTIVE</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-neutral-400">3 SIGNALS PARSED</span>
+                </div>
+
+                <!-- Stacked Result Cards -->
+                <div class="space-y-3">
+                    <!-- 1. DECISIONS -->
+                    <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-neutral-500 uppercase font-semibold">DECISIONS</span>
+                            <span
+                                class="bg-neutral-900 text-white px-2 py-0.5 rounded-full font-bold text-[9px] tracking-wider">CONFIRMED</span>
+                        </div>
+                        <p class="font-sans font-semibold text-sm text-neutral-900 leading-snug">
+                            Mandatory 14-day pen-testing freeze window enforced prior to any public production ingress.
+                        </p>
+                        <p class="text-[11px] font-mono text-neutral-500 flex items-center gap-1">
+                            <svg class="w-3 h-3 text-neutral-700" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            SecOps Governance Rule #104.B
+                        </p>
+                    </div>
+
+                    <!-- 2. CONSTRAINTS -->
+                    <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-neutral-500 uppercase font-semibold">CONSTRAINTS</span>
+                            <span
+                                class="bg-neutral-100 text-neutral-700 border border-neutral-300 px-2 py-0.5 rounded-full font-bold text-[9px]">STRICT
+                                BLOCKER</span>
+                        </div>
+                        <p class="font-sans font-semibold text-sm text-neutral-900 leading-snug">
+                            Dependency: Zero external port opening until SecOps cryptographic audit signoff.
+                        </p>
+                        <p class="text-[11px] font-mono text-neutral-500 flex items-center gap-1">
+                            <span>🔒</span>
+                            <span>Firewall Ingress / Egress Lockdown active</span>
+                        </p>
+                    </div>
+
+                    <!-- 3. COMMITMENTS -->
+                    <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-neutral-500 uppercase font-semibold">COMMITMENTS</span>
+                            <span class="text-brand-red font-bold text-[10px]">📅 OCT 08</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span
+                                class="w-6 h-6 rounded-full bg-neutral-200 text-neutral-700 font-mono text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5">MT</span>
+                            <div>
+                                <p class="font-sans text-xs font-semibold text-neutral-900">Marcus T. to deliver
+                                    perimeter vulnerability report by Oct 08.</p>
+                                <p class="text-[10px] font-mono text-neutral-500 mt-0.5">Assigned: SecOps Lead •
+                                    Priority High</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. CONFLICTS DETECTED (Alert style) -->
+                    <div onclick="router.navigate('audit')"
+                        class="bg-[#fdeaea] border-2 border-brand-red rounded-2xl p-4 shadow-xs cursor-pointer hover:border-brand-redDark transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 text-brand-red font-mono text-xs font-bold">
+                                <span>⚠️</span>
+                                <span>CONFLICTS DETECTED</span>
+                            </div>
+                            <span
+                                class="px-2 py-0.5 bg-brand-red text-white rounded-full font-mono text-[9px] font-bold">CRITICAL</span>
+                        </div>
+                        <h3 class="font-display font-bold text-sm text-neutral-900">
+                            Launch date shift to Oct 12 breaks 14-day compliance rule
+                        </h3>
+                        <p class="text-xs text-neutral-700 leading-snug">
+                            Roadmap target pushes deployment 7 days ahead of required cryptographic freeze cycle.
+                            Automated alert triggered across telemetry streams.
+                        </p>
+                        <div
+                            class="flex items-center justify-between pt-2 border-t border-brand-red/20 text-xs font-mono">
+                            <span class="text-neutral-500 text-[10px]">Origin: Core Gateway Sync Buffer</span>
+                            <span class="text-brand-red font-bold flex items-center gap-1">RESOLVE →</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. RAW TRANSCRIPT EVIDENCE -->
+                    <div class="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                            <span class="uppercase font-semibold">RAW TRANSCRIPT EVIDENCE</span>
+                            <button onclick="audioSimulator.playEvidence()"
+                                class="text-brand-red font-bold flex items-center gap-1 hover:underline">
+                                <span>▶</span> AUDIO CLIP (00:24)
+                            </button>
+                        </div>
+                        <blockquote
+                            class="bg-white border-l-3 border-neutral-800 p-3 rounded-r-xl font-mono text-xs text-neutral-800 space-y-1">
+                            <div class="flex items-center justify-between text-[10px] text-neutral-400">
+                                <span>[18:42 UTC - Audio Buffer #04]</span>
+                                <span>Confidence: 99.4%</span>
+                            </div>
+                            <p class="italic">"We cannot compress the two-week audit. If launch moves before the 19th,
+                                security compliance fails automatically."</p>
+                            <p class="text-[10px] text-brand-red font-semibold pt-1">● Marcus (SecOps Lead)</p>
+                        </blockquote>
+                        <div class="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-1">
+                            <span>Evidence signed via Ledger Key ED25519</span>
+                            <span>Block #412,981</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="pt-2">
+                    <button onclick="router.navigate('dashboard')"
+                        class="w-full py-3.5 bg-neutral-900 hover:bg-black active:scale-98 text-white rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+                        </svg>
+                        <span>Done — Back to Dashboard</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 4: CONFLICT / AUDIT "WHY" SCREEN (SCREEN_12)              -->
+            <!-- ================================================================= -->
+            <section id="view-audit" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+
+                <!-- Top Sub-Nav Telemetry Tag -->
+                <div class="flex items-center justify-between text-[10px] font-mono">
+                    <span class="px-2 py-0.5 rounded-full bg-red-100 text-brand-red font-bold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-red"></span>
+                        CRITICAL DESYNC
+                    </span>
+                    <span class="text-neutral-500">REF: #RL-9041-C</span>
+                    <span class="text-neutral-400 font-mono">HASH: 7F4A...B991</span>
+                </div>
+
+                <!-- Contradiction Alert Card -->
+                <div class="bg-[#fdeaea] border-2 border-brand-red rounded-2xl p-4 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 text-brand-red font-mono text-xs font-bold">
+                            <span
+                                class="w-5 h-5 rounded-full bg-brand-red text-white flex items-center justify-center text-[10px]">!</span>
+                            <span>CONTRADICTION DETECTED</span>
+                        </div>
+                        <span class="font-mono text-[10px] text-neutral-600 font-bold">CONFIDENCE: 98.4%</span>
+                    </div>
+                    <h2 class="font-display font-bold text-lg text-neutral-950 leading-snug">Launch Date Shift Violates
+                        Security Buffer</h2>
+                    <p class="text-xs text-neutral-700 font-sans mt-1.5 leading-relaxed">
+                        Autonomous memory inspection flagged an irreconcilable scheduling paradox between live tactical
+                        roadmaps and cryptographically locked security thresholds.
+                    </p>
+                </div>
+
+                <!-- TEMPORAL DRIFT DELTA COMPONENT -->
+                <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-3">
+                    <div class="flex items-center justify-between font-mono text-xs">
+                        <span class="text-neutral-500 font-bold">TEMPORAL DRIFT DELTA</span>
+                        <span class="text-brand-red font-bold text-sm bg-red-50 px-2 py-0.5 rounded">-7 CALENDAR
+                            DAYS</span>
+                    </div>
+                    <div class="relative py-2">
+                        <div class="h-2 bg-neutral-100 rounded-full w-full relative overflow-hidden">
+                            <div class="absolute left-1/4 right-1/4 h-full bg-brand-red"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500 mt-2">
+                            <div>
+                                <span class="block text-brand-red font-bold">OCT 12 (REQ)</span>
+                                <span>GA Commit Window</span>
+                            </div>
+                            <div class="text-center font-bold text-brand-red">
+                                Collision Window (168 Hours)
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-neutral-900 font-bold">OCT 19 (MIN SEC)</span>
+                                <span>SecOps Lock End</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORMAL LOGIC AUDIT FORMULA -->
+                <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs font-mono text-xs space-y-2">
+                    <div
+                        class="flex items-center justify-between text-[10px] text-neutral-500 border-b border-neutral-100 pb-1.5">
+                        <span class="font-bold flex items-center gap-1">
+                            <span>🧮</span> FORMAL LOGIC AUDIT
+                        </span>
+                        <span>KERNEL // PROVER-04</span>
+                    </div>
+                    <div class="bg-neutral-50 p-3 rounded-xl space-y-1.5 text-[11px]">
+                        <div class="text-neutral-700 flex justify-between">
+                            <span class="text-brand-red font-bold">[New Decision: Launch Oct 12]</span>
+                            <span class="text-neutral-400">T_0</span>
+                        </div>
+                        <div class="text-neutral-700 flex justify-between">
+                            <span>+ [Existing Constraint: 14-Day Audit through Oct 19]</span>
+                            <span class="text-neutral-400">C_sec</span>
+                        </div>
+                        <div class="text-neutral-700 flex justify-between">
+                            <span>+ [Current Status: Buffer Deficit = -7 Days]</span>
+                            <span class="text-brand-red font-bold">ΔT &lt; 0</span>
+                        </div>
+                        <div
+                            class="pt-2 border-t border-neutral-200 flex items-center justify-between font-bold text-brand-red">
+                            <span>🛡 = DIRECT CONTRADICTION</span>
+                            <span class="bg-red-100 text-brand-red px-1.5 py-0.5 rounded text-[10px]">FAIL_FAST</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLLIDING TELEMETRY STREAMS -->
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                        <span class="font-bold uppercase">COLLIDING TELEMETRY STREAMS</span>
+                        <span>2 NODES IDENTIFIED</span>
+                    </div>
+                    <!-- Node A -->
+                    <div
+                        class="bg-white border border-neutral-200 border-l-4 border-l-brand-red rounded-xl p-3.5 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
+                            <div class="flex items-center gap-1 text-brand-red font-bold">
+                                <span>NEW EVIDENCE</span>
+                                <span>•</span>
+                                <span>TODAY 14:15</span>
+                            </div>
+                            <span class="bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">TRANSCRIPT_TX8</span>
+                        </div>
+                        <p class="text-xs font-mono text-neutral-500">Product Roadmap Sync (Google Meet)</p>
+                        <blockquote class="bg-neutral-50 p-2.5 rounded-lg text-xs font-mono italic text-neutral-800">
+                            "Team agreed to advance the general availability launch to October 12th."
+                        </blockquote>
+                        <div class="flex items-center justify-between text-[11px] font-mono pt-1">
+                            <button onclick="audioSimulator.playClip('A')"
+                                class="text-brand-red font-bold flex items-center gap-1 hover:underline">
+                                <span>▶</span> View audio moment [09:12]
+                            </button>
+                            <span class="text-neutral-500">Speaker: Head of Product</span>
+                        </div>
+                    </div>
+                    <!-- Node B -->
+                    <div
+                        class="bg-white border border-neutral-200 border-l-4 border-l-neutral-800 rounded-xl p-3.5 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
+                            <div class="flex items-center gap-1 text-neutral-800 font-bold">
+                                <span>EXISTING CONSTRAINT</span>
+                                <span>•</span>
+                                <span>SEP 15</span>
+                            </div>
+                            <span class="bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">IMMUTABLE_SRC</span>
+                        </div>
+                        <p class="text-xs font-mono text-neutral-500">SecOps Audit Review (Zoom)</p>
+                        <blockquote class="bg-neutral-50 p-2.5 rounded-lg text-xs font-mono italic text-neutral-800">
+                            "Under no circumstances may we launch before the complete 14-day security observation
+                            concludes on Oct 19."
+                        </blockquote>
+                        <div class="flex items-center justify-between text-[11px] font-mono pt-1">
+                            <button onclick="audioSimulator.playClip('B')"
+                                class="text-neutral-800 font-bold flex items-center gap-1 hover:underline">
+                                <span>▶</span> View audio moment [24:45]
+                            </button>
+                            <span class="text-neutral-500">Speaker: Lead Cryptographer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="router.navigate('timeline')"
+                        class="py-3 px-3 bg-white border border-neutral-800 hover:bg-neutral-50 text-neutral-900 rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5">
+                            </path>
+                        </svg>
+                        <span>View Timeline</span>
+                    </button>
+                    <button
+                        onclick="alertModal.show('Resolution Flagged', 'Conflict marked as under executive review. Discrepancy logged to cryptographic evidence chain.')"
+                        class="py-3 px-3 bg-neutral-900 hover:bg-black text-white rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition">
+                        <span>✓</span>
+                        <span>Mark Resolved</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 5: DECISION TIMELINE (SCREEN_10)                          -->
+            <!-- ================================================================= -->
+            <section id="view-timeline" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+
+                <!-- Screen Header with Plain English Focus -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                        <span class="flex items-center gap-1 text-brand-red font-bold">
+                            <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                            SYNCHRONIZED AUDIT TRAIL
+                        </span>
+                        <span class="bg-neutral-200 text-neutral-800 px-2 py-0.5 rounded font-bold">4 KEY EVENTS</span>
+                    </div>
+                    <h2 class="font-display font-bold text-xl text-neutral-950 leading-tight">
+                        How this decision changed over time.
+                    </h2>
+                    <p class="text-xs text-neutral-600 font-sans leading-relaxed">
+                        Tracing commitments across meetings, chats, and automated transcripts to identify critical
+                        divergence points.
+                    </p>
+                </div>
+
+                <!-- Scope Pill -->
+                <div
+                    class="bg-white border border-neutral-200 rounded-xl p-3 flex items-center justify-between text-xs font-mono">
+                    <div class="flex items-center gap-2">
+                        <span class="text-brand-red font-bold">AUDIT REF: #TL-9041-C</span>
+                        <span class="text-neutral-400">|</span>
+                        <span class="text-neutral-700">TOPIC: GA LAUNCH DATE</span>
+                    </div>
+                    <span class="text-[10px] text-neutral-400">EVOLUTION</span>
+                </div>
+
+                <!-- VERTICAL TIMELINE CONTAINER -->
+                <div
+                    class="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-neutral-200">
+                    <!-- Timeline Node 1 -->
+                    <div class="relative space-y-1.5">
+                        <div
+                            class="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-neutral-400 ring-4 ring-brand-bg">
+                        </div>
+                        <div class="text-[10px] font-mono text-neutral-500 flex items-center justify-between">
+                            <span>SEP 15, 2024 • 11:30 UTC // ZOOM</span>
+                            <span class="text-neutral-400">📹</span>
+                        </div>
+                        <div class="bg-white border border-neutral-200 rounded-xl p-3.5 shadow-2xs space-y-1">
+                            <h3 class="font-display font-bold text-sm text-neutral-900 leading-snug">Two-week security
+                                test freeze locked in</h3>
+                            <p class="text-xs text-neutral-600 font-sans">SecOps confirmed that all code must freeze for
+                                14 days prior to public launch.</p>
+                            <div class="pt-2 flex items-center gap-1.5 text-[10px] font-mono text-neutral-500">
+                                <span>🔒</span>
+                                <span>RULE: 14-DAY COMPLIANCE BUFFER [SEC-104.B]</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Node 2 -->
+                    <div class="relative space-y-1.5">
+                        <div
+                            class="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-neutral-900 ring-4 ring-brand-bg">
+                        </div>
+                        <div class="text-[10px] font-mono text-neutral-500 flex items-center justify-between">
+                            <span>OCT 02, 2024 • 09:15 UTC // SLACK HUDDLE</span>
+                            <span class="text-neutral-400">🎧</span>
+                        </div>
+                        <div class="bg-white border border-neutral-200 rounded-xl p-3.5 shadow-2xs space-y-1">
+                            <h3 class="font-display font-bold text-sm text-neutral-900 leading-snug">Security review
+                                scheduled through October 19</h3>
+                            <p class="text-xs text-neutral-600 font-sans">Auditors booked formal penetration testing
+                                window ending Oct 19.</p>
+                            <div class="pt-2 flex items-center gap-1.5 text-[10px] font-mono text-neutral-500">
+                                <span>📅</span>
+                                <span>STATUS: IMMUTABLE AUDIT SCHEDULE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Node 3 -->
+                    <div class="relative space-y-1.5">
+                        <div
+                            class="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-neutral-900 ring-4 ring-brand-bg">
+                        </div>
+                        <div class="text-[10px] font-mono text-neutral-500 flex items-center justify-between">
+                            <span>OCT 08, 2024 • 14:00 UTC // MEET</span>
+                            <span class="text-neutral-400">👥</span>
+                        </div>
+                        <div class="bg-white border border-neutral-200 rounded-xl p-3.5 shadow-2xs space-y-1">
+                            <h3 class="font-display font-bold text-sm text-neutral-900 leading-snug">Penetration tests
+                                confirmed on track</h3>
+                            <p class="text-xs text-neutral-600 font-sans">Lead cryptographer noted no blockers if Oct 19
+                                date holds.</p>
+                            <div class="pt-2 flex items-center gap-1.5 text-[10px] font-mono text-neutral-500">
+                                <span>✓</span>
+                                <span>VERIFIED BY: MARCUS T. (SECOPS LEAD)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Node 4 -->
+                    <div class="relative space-y-1.5">
+                        <div
+                            class="absolute -left-[30px] top-1 w-4 h-4 rounded-full bg-brand-red ring-4 ring-red-200 shadow-md shadow-brand-red/50 animate-pulse">
+                        </div>
+                        <div class="text-[10px] font-mono text-brand-red font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-1">
+                                <span>●</span> TODAY • 14:15 UTC // GOOGLE MEET [LATEST]
+                            </span>
+                            <span>⚠️</span>
+                        </div>
+                        <div class="bg-[#fdeaea] border-2 border-brand-red rounded-2xl p-4 shadow-sm space-y-2">
+                            <h3 class="font-display font-bold text-base text-neutral-950 leading-snug">New launch date
+                                was moved up to October 12</h3>
+                            <p class="text-xs text-neutral-800 font-sans leading-relaxed">
+                                Moving launch to Oct 12 cuts into the required 14-day security window by 7 full days.
+                            </p>
+                            <div
+                                class="p-2 rounded-xl bg-white/80 border border-brand-red/30 flex items-center justify-between text-[11px] font-mono text-brand-red font-bold">
+                                <span>DIRECT CONTRADICTION</span>
+                                <span>BUFFER DEFICIT: -7 DAYS</span>
+                            </div>
+                            <div class="pt-1 flex items-center justify-between">
+                                <button onclick="audioSimulator.playClip('A')"
+                                    class="text-xs font-mono font-bold text-brand-red flex items-center gap-1.5 hover:underline">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-brand-red text-white flex items-center justify-center text-[10px]">▶</span>
+                                    <span>View Audio Moment [09:12]</span>
+                                </button>
+                                <span class="text-[10px] font-mono text-neutral-500">09:12 / 18:40</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corroborating Telemetry Quote -->
+                <div class="bg-neutral-100 rounded-2xl p-3.5 flex items-start gap-3">
+                    <span
+                        class="w-7 h-7 rounded-full bg-neutral-300 font-mono text-xs font-bold flex items-center justify-center text-neutral-800 shrink-0">MT</span>
+                    <div class="space-y-0.5">
+                        <p class="text-[11px] font-mono text-neutral-500">Marcus Vance (Product VP)</p>
+                        <p class="text-xs font-sans italic text-neutral-800">"Let's pull GA to the 12th to announce at
+                            Keynote."</p>
+                    </div>
+                    <span
+                        class="ml-auto font-mono text-[9px] text-brand-red font-bold bg-red-100 px-1.5 py-0.5 rounded">UNRESOLVED</span>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="router.navigate('audit')"
+                        class="py-3 px-3 bg-white border border-neutral-300 text-neutral-800 rounded-2xl font-mono text-xs font-bold tracking-wider hover:bg-neutral-50 transition shadow-2xs">
+                        🔍 COMPARE TRANSCRIPTS
+                    </button>
+                    <button onclick="router.navigate('audit')"
+                        class="py-3 px-3 bg-neutral-900 text-white rounded-2xl font-mono text-xs font-bold tracking-wider hover:bg-black transition shadow-2xs">
+                        📋 REVIEW RESOLUTION
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 6: CALENDAR SCREEN (Item 2 requested)                     -->
+            <!-- ================================================================= -->
+            <section id="view-calendar" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+                <!-- Standard REDLINE Header -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                        <span class="flex items-center gap-1 text-brand-red font-bold">
+                            <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                            SOVEREIGN DEADLINES
+                        </span>
+                        <span class="bg-neutral-200 text-neutral-800 px-2 py-0.5 rounded font-bold uppercase">OCTOBER
+                            2024</span>
+                    </div>
+                    <h2 class="font-display font-bold text-xl text-neutral-950 leading-tight">
+                        Calendar
+                    </h2>
+                    <p class="text-xs text-neutral-500 font-sans">
+                        What's due, and when.
+                    </p>
+                </div>
+
+                <!-- Standard Month-View Grid Card -->
+                <div class="bg-white border border-neutral-200 rounded-2xl p-4 shadow-2xs space-y-3">
+                    <div
+                        class="flex items-center justify-between font-mono text-xs text-neutral-700 pb-2 border-b border-neutral-100">
+                        <span class="font-bold text-neutral-900">OCTOBER 2024</span>
+                        <div class="flex items-center gap-1 text-neutral-400">
+                            <button aria-label="Previous Month" class="p-1 hover:text-neutral-900">‹</button>
+                            <button aria-label="Next Month" class="p-1 hover:text-neutral-900">›</button>
+                        </div>
+                    </div>
+
+                    <!-- Day Names -->
+                    <div class="grid grid-cols-7 text-center font-mono text-[10px] text-neutral-400 font-semibold">
+                        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                    </div>
+
+                    <!-- Month Grid: monospace numbers with dots underneath dates with commitments (red if overdue/conflicting, black if on track, none otherwise) -->
+                    <div class="grid grid-cols-7 gap-y-2 text-center font-mono text-xs" id="calendarDaysGrid">
+                        <span class="text-neutral-300 py-1">30</span>
+                        <button onclick="calendarController.selectDate(1)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">1</button>
+
+                        <!-- Oct 2: On track commitment -->
+                        <button onclick="calendarController.selectDate(2)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center relative">
+                            2<span class="w-1.5 h-1.5 rounded-full bg-neutral-900 mt-0.5"></span>
+                        </button>
+
+                        <button onclick="calendarController.selectDate(3)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">3</button>
+                        <button onclick="calendarController.selectDate(4)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">4</button>
+                        <button onclick="calendarController.selectDate(5)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">5</button>
+                        <button onclick="calendarController.selectDate(6)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">6</button>
+                        <button onclick="calendarController.selectDate(7)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">7</button>
+
+                        <!-- Oct 8: On track commitment -->
+                        <button onclick="calendarController.selectDate(8)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center relative">
+                            8<span class="w-1.5 h-1.5 rounded-full bg-neutral-900 mt-0.5"></span>
+                        </button>
+
+                        <button onclick="calendarController.selectDate(9)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">9</button>
+                        <button onclick="calendarController.selectDate(10)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">10</button>
+                        <button onclick="calendarController.selectDate(11)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">11</button>
+
+                        <!-- Oct 12: Overdue / Conflicting commitment (Red dot) -->
+                        <button onclick="calendarController.selectDate(12)"
+                            class="cal-day-cell py-1 text-brand-red font-bold rounded-lg bg-red-50 flex flex-col items-center relative ring-1 ring-brand-red/30">
+                            12<span class="w-1.5 h-1.5 rounded-full bg-brand-red mt-0.5"></span>
+                        </button>
+
+                        <button onclick="calendarController.selectDate(13)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">13</button>
+                        <button onclick="calendarController.selectDate(14)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">14</button>
+                        <button onclick="calendarController.selectDate(15)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">15</button>
+                        <button onclick="calendarController.selectDate(16)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">16</button>
+                        <button onclick="calendarController.selectDate(17)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">17</button>
+                        <button onclick="calendarController.selectDate(18)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">18</button>
+
+                        <!-- Oct 19: On track commitment (Black dot) -->
+                        <button onclick="calendarController.selectDate(19)"
+                            class="cal-day-cell py-1 text-neutral-950 font-bold rounded-lg hover:bg-neutral-100 flex flex-col items-center relative">
+                            19<span class="w-1.5 h-1.5 rounded-full bg-neutral-900 mt-0.5"></span>
+                        </button>
+
+                        <button onclick="calendarController.selectDate(20)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">20</button>
+                        <button onclick="calendarController.selectDate(21)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">21</button>
+                        <button onclick="calendarController.selectDate(22)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">22</button>
+                        <button onclick="calendarController.selectDate(23)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">23</button>
+                        <button onclick="calendarController.selectDate(24)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">24</button>
+                        <button onclick="calendarController.selectDate(25)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">25</button>
+                        <button onclick="calendarController.selectDate(26)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">26</button>
+                        <button onclick="calendarController.selectDate(27)"
+                            class="cal-day-cell py-1 text-neutral-400 rounded-lg hover:bg-neutral-100 flex flex-col items-center">27</button>
+                        <button onclick="calendarController.selectDate(28)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">28</button>
+                        <button onclick="calendarController.selectDate(29)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">29</button>
+                        <button onclick="calendarController.selectDate(30)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">30</button>
+                        <button onclick="calendarController.selectDate(31)"
+                            class="cal-day-cell py-1 text-neutral-700 rounded-lg hover:bg-neutral-100 flex flex-col items-center">31</button>
+                        <span class="text-neutral-300 py-1">1</span>
+                        <span class="text-neutral-300 py-1">2</span>
+                        <span class="text-neutral-300 py-1">3</span>
+                    </div>
+
+                    <!-- Legend -->
+                    <div
+                        class="flex items-center justify-between pt-2 border-t border-neutral-100 text-[10px] font-mono">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                            <span class="text-neutral-500">Overdue / Conflicting</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-neutral-900"></span>
+                            <span class="text-neutral-500">On Track</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commitments Section Beneath Grid (Item 2 requested) -->
+                <div class="space-y-2.5">
+                    <div
+                        class="flex items-center justify-between text-[11px] font-mono text-neutral-500 uppercase font-semibold">
+                        <span id="calSelectedDayHeader">OCTOBER 12 COMMITMENTS</span>
+                        <span id="calSelectedDayCount">1 DUE</span>
+                    </div>
+
+                    <!-- Commitments list container dynamically populated on tapping dates -->
+                    <div class="space-y-2.5" id="calCommitmentsList">
+                        <!-- Default Oct 12: Overdue item -->
+                        <div class="bg-white border border-neutral-200 rounded-2xl p-3.5 shadow-2xs space-y-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h4 class="font-sans font-bold text-sm text-neutral-950 leading-snug">Product GA
+                                        Launch Window</h4>
+                                    <p class="font-mono text-xs text-neutral-400 mt-0.5">Owner: Marcus Vance</p>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-red-100 text-brand-red font-mono text-[9px] font-bold tracking-wider uppercase shrink-0">Overdue</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between pt-2 border-t border-neutral-100 text-[10px] font-mono text-neutral-500">
+                                <span>DUE: OCT 12, 2024</span>
+                                <span class="text-brand-red font-bold">CONFLICT WITH RULE #104.B</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================================= -->
+            <!-- SEGMENT 7: PROFILE / SECURITY SETTINGS (SCREEN_8)                 -->
+            <!-- ================================================================= -->
+            <section id="view-profile" class="screen-transition screen-hidden p-4 space-y-4 pb-28">
+
+                <!-- Top Profile Overview -->
+                <div
+                    class="bg-white border border-neutral-200 rounded-3xl p-5 text-center shadow-2xs relative overflow-hidden">
+                    <div class="absolute -top-10 right-0 w-32 h-32 bg-red-50 rounded-full blur-xl pointer-events-none">
+                    </div>
+                    <div class="relative inline-block mb-3">
+                        <div
+                            class="w-20 h-20 rounded-full bg-neutral-200 border-2 border-white shadow-sm flex items-center justify-center text-xl font-display font-black text-neutral-800 tracking-wider">
+                            AR
+                        </div>
+                        <div
+                            class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-neutral-900 text-white flex items-center justify-center border-2 border-white text-[10px]">
+                            🛡
+                        </div>
+                    </div>
+                    <h2 class="font-display font-bold text-lg text-neutral-950">Alex Rivera</h2>
+                    <p class="text-xs text-neutral-500 font-sans">Lead Infrastructure Architect • SecOps</p>
+
+                    <div
+                        class="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-neutral-100 rounded-full text-[10px] font-mono text-neutral-600 border border-neutral-200">
+                        <span>🔑</span>
+                        <span>DEVICE ID: RDL-7702-X // ED25519 VERIFIED</span>
+                    </div>
+                </div>
+
+                <!-- HIGH-PRIORITY PLAIN-ENGLISH PRIVACY CARD -->
+                <div class="bg-white border-2 border-neutral-300 rounded-2xl p-4 shadow-sm space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-9 h-9 rounded-xl bg-neutral-900 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <span
+                                class="text-[10px] font-mono text-brand-red font-bold uppercase tracking-wider block">SOVEREIGN
+                                STORAGE</span>
+                            <h3 class="font-display font-bold text-base text-neutral-950 leading-snug">
+                                Your data stays on this phone
+                            </h3>
+                        </div>
+                    </div>
+                    <p class="text-xs text-neutral-600 font-sans leading-relaxed">
+                        On-device processing active. Cloud verification is off by default and only used for items you
+                        approve — it never sends audio, photos, or documents.
+                    </p>
+                    <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+                        <div>
+                            <span class="text-xs font-semibold text-neutral-900 block flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-brand-red"></span> Enclave Isolation
+                            </span>
+                            <span class="text-[10px] font-mono text-neutral-500">Local neural inference active</span>
+                        </div>
+                        <button id="enclaveToggleBtn" onclick="settingsManager.toggleEnclave()"
+                            class="w-12 h-7 bg-brand-red rounded-full p-0.5 transition-colors duration-200 ease-in-out relative flex items-center">
+                            <span id="enclaveToggleKnob"
+                                class="w-6 h-6 bg-white rounded-full shadow-md transform translate-x-5 transition-transform duration-200 ease-in-out flex items-center justify-center text-[10px] text-brand-red font-bold">
+                                🛡
+                            </span>
+                        </button>
+                    </div>
+                    <div
+                        class="bg-neutral-50 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-neutral-500 flex items-center justify-between">
+                        <span>SECURITY POLICY // ZERO-INGRESS LOCAL ENCLAVE</span>
+                        <span class="text-emerald-600 font-bold">✓</span>
+                    </div>
+                </div>
+
+                <!-- Plain-Language List Rows -->
+                <div
+                    class="bg-white border border-neutral-200 rounded-2xl overflow-hidden divide-y divide-neutral-100 shadow-2xs">
+                    <div onclick="alertModal.show('Meeting Sources', 'Google Meet, Zoom, and Teams linked for passive acoustic capture.')"
+                        class="p-3.5 flex items-center justify-between hover:bg-neutral-50 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 font-mono text-xs">🔗</span>
+                            <div>
+                                <h4 class="font-sans font-semibold text-xs text-neutral-900">Meeting Sources</h4>
+                                <p class="text-[10px] font-mono text-neutral-500">Google Meet, Zoom, Teams ...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-neutral-400">
+                            <span
+                                class="text-[10px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded">4
+                                LINKED</span>
+                            <span>›</span>
+                        </div>
+                    </div>
+
+                    <div onclick="alertModal.show('Your Data Ledger', 'Local encrypted memory ledger holding 1.2 GB of acoustic indexes and timeline trees.')"
+                        class="p-3.5 flex items-center justify-between hover:bg-neutral-50 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 font-mono text-xs">💾</span>
+                            <div>
+                                <h4 class="font-sans font-semibold text-xs text-neutral-900">Your Data</h4>
+                                <p class="text-[10px] font-mono text-neutral-500">Local encrypted memory ledge...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-neutral-400">
+                            <span class="text-[10px] font-mono text-neutral-600">1.2 GB</span>
+                            <span>›</span>
+                        </div>
+                    </div>
+
+                    <div onclick="alertModal.show('Laptop Connection', 'Office Kit Pairing via local cryptographic handshake (BLE + Local Wi-Fi).')"
+                        class="p-3.5 flex items-center justify-between hover:bg-neutral-50 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 font-mono text-xs">💻</span>
+                            <div>
+                                <h4 class="font-sans font-semibold text-xs text-neutral-900">Laptop Connection</h4>
+                                <p class="text-[10px] font-mono text-neutral-500">Office Kit Pairing via local crypto...
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-neutral-400">
+                            <span class="text-[10px] font-mono font-bold text-brand-red flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-brand-red"></span> PAIRED
+                            </span>
+                            <span>›</span>
+                        </div>
+                    </div>
+
+                    <div onclick="alertModal.show('About REDLINE', 'REDLINE Sovereign Work Memory OS v2.4.1\nEngine: On-Device Neural Prover\nTarget: Defense-Grade Conflict Forensics.')"
+                        class="p-3.5 flex items-center justify-between hover:bg-neutral-50 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 font-mono text-xs">ℹ️</span>
+                            <div>
+                                <h4 class="font-sans font-semibold text-xs text-neutral-900">About REDLINE</h4>
+                                <p class="text-[10px] font-mono text-neutral-500">Kernel v2.4.1 • Sovereign Work M...
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-neutral-400">
+                            <span class="text-[10px] font-mono text-neutral-500">v2.4.1</span>
+                            <span>›</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Utility Actions -->
+                <div class="space-y-2 pt-1">
+                    <button
+                        onclick="alertModal.show('Ledger Verified', 'Merkle root 0x889...99CD matches ED25519 local hardware signature. All historical decision nodes intact.')"
+                        class="w-full py-3 bg-neutral-900 hover:bg-black text-white rounded-2xl font-mono text-xs font-bold flex items-center justify-center gap-2 shadow-2xs active:scale-98 transition">
+                        <span>🛡</span>
+                        <span>Audit Cryptographic Ledger</span>
+                    </button>
+                    <button
+                        onclick="alertModal.show('Cache Cleared', '140 MB of ephemeral acoustic buffers scrubbed from volatile memory.')"
+                        class="w-full py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-2xl font-mono text-xs font-bold flex items-center justify-center gap-2 active:scale-98 transition">
+                        <span>🧹</span>
+                        <span>Clear Local Ephemeral Cache</span>
+                    </button>
+                </div>
+
+                <!-- Air-gapped runtime badge -->
+                <div class="text-center font-mono text-[9px] text-neutral-400 py-2 border-t border-neutral-200">
+                    <p class="text-brand-red font-bold">REDLINE RUNTIME STATUS</p>
+                    <p>AIR-GAPPED HARDWARE SANDBOX // ZERO INGRESS GUARANTEE</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- ================================================================= -->
+        <!-- PERSISTENT GLOBAL 3-ELEMENT BOTTOM NAVIGATION BAR                 -->
+        <!-- ================================================================= -->
+        <nav
+            class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-brand-border px-6 py-2 z-40 flex items-center justify-between">
+            <!-- Tab 1: STREAM (Dashboard) -->
+            <button onclick="router.navigate('dashboard')" id="navStream"
+                class="flex flex-col items-center gap-1 text-brand-red transition group py-1">
+                <svg class="w-5 h-5 transition group-hover:scale-110" fill="none" stroke="currentColor"
+                    stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25">
+                    </path>
+                </svg>
+                <span class="font-mono text-[10px] font-bold tracking-wider">STREAM</span>
+            </button>
+            <!-- Tab 2: RECORD (Dominant Raised Mic Action Button) -->
+            <div class="relative -top-5 flex flex-col items-center">
+                <button onclick="router.navigate('capture')" id="navCapture" aria-label="Capture Audio"
+                    class="w-14 h-14 rounded-full bg-brand-red text-white flex items-center justify-center shadow-lg ring-4 ring-brand-bg hover:scale-105 active:scale-95 transition">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 01-3-3V4.5a3 3 0 116 0V12a3 3 0 01-3 3z">
+                        </path>
+                    </svg>
+                </button>
+                <span class="font-mono text-[9px] font-bold tracking-wider text-brand-red mt-1">CAPTURE</span>
+            </div>
+            <!-- Tab 3: AUDIT (Conflict / Timeline Inspection) -->
+            <button onclick="router.navigate('audit')" id="navAudit"
+                class="flex flex-col items-center gap-1 text-neutral-400 hover:text-neutral-900 transition group py-1">
+                <svg class="w-5 h-5 transition group-hover:scale-110" fill="none" stroke="currentColor"
+                    stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z">
+                    </path>
+                </svg>
+                <span class="font-mono text-[10px] font-bold tracking-wider">AUDIT</span>
+            </button>
+        </nav>
+
+        <!-- ================================================================= -->
+        <!-- SLIDE-IN SIDEBAR / NAVIGATION DRAWER (Item 3 requested)           -->
+        <!-- White background, slides in from left, dims screen behind it      -->
+        <!-- ================================================================= -->
+        <div id="navDrawerContainer"
+            class="absolute inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+            <!-- Backdrop dims the screen -->
+            <div id="navDrawerBackdrop" onclick="drawerController.close()"
+                class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
+
+            <!-- White Sidebar Panel -->
+            <aside id="navDrawerPanel"
+                class="absolute inset-y-0 left-0 w-[300px] bg-white border-r border-brand-border shadow-2xl flex flex-col justify-between transform -translate-x-full transition-transform duration-300 ease-in-out">
+
+                <div class="p-5 space-y-4 overflow-y-auto hide-scrollbar flex-1">
+                    <!-- Top: Avatar, name, role — matching existing Profile screen's avatar style exactly -->
+                    <div class="flex items-center justify-between border-b border-neutral-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div
+                                    class="w-11 h-11 rounded-full bg-neutral-200 border border-neutral-300 flex items-center justify-center font-display font-black text-sm text-neutral-800 tracking-wider shadow-2xs">
+                                    AR
+                                </div>
+                                <div
+                                    class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-neutral-900 text-white flex items-center justify-center border border-white text-[8px]">
+                                    🛡
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-bold text-sm text-neutral-950 leading-tight">Alex Rivera
+                                </h3>
+                                <p class="text-[10px] font-sans text-neutral-500">Lead Infrastructure Architect • SecOps
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="drawerController.close()" aria-label="Close Drawer"
+                            class="w-7 h-7 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Vertical list of rows: (icon, bold black label, grey chevron). Active gets light red tint. -->
+                    <nav class="space-y-1">
+                        <!-- 1. Dashboard -->
+                        <button onclick="drawerController.select('dashboard')" id="drawerLink-dashboard"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-bold text-brand-red bg-[#fdeaea] border border-brand-red/30 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">📊</span>
+                                <span class="text-neutral-950 font-bold font-sans">Dashboard</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 2. Record -->
+                        <button onclick="drawerController.select('capture')" id="drawerLink-capture"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">🎙</span>
+                                <span class="text-neutral-950 font-bold font-sans">Record</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 3. Calendar -->
+                        <button onclick="drawerController.select('calendar')" id="drawerLink-calendar"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">📅</span>
+                                <span class="text-neutral-950 font-bold font-sans">Calendar</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 4. Timeline -->
+                        <button onclick="drawerController.select('timeline')" id="drawerLink-timeline"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">⏱</span>
+                                <span class="text-neutral-950 font-bold font-sans">Timeline</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 5. Conflicts -->
+                        <button onclick="drawerController.select('audit')" id="drawerLink-audit"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">⚠️</span>
+                                <span class="text-neutral-950 font-bold font-sans">Conflicts</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- One thin divider line between the core app sections and the settings/info sections -->
+                        <div class="pt-2 pb-1 border-t border-neutral-200 my-2"></div>
+
+                        <!-- 6. Your Data -->
+                        <button
+                            onclick="drawerController.select('profile'); alertModal.show('Your Data Ledger', 'Local encrypted memory ledger holding 1.2 GB of acoustic indexes and timeline trees.');"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">💾</span>
+                                <span class="text-neutral-950 font-bold font-sans">Your Data</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 7. Laptop Connection -->
+                        <button
+                            onclick="drawerController.select('profile'); alertModal.show('Laptop Connection', 'Office Kit Pairing via local cryptographic handshake (BLE + Local Wi-Fi).');"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">💻</span>
+                                <span class="text-neutral-950 font-bold font-sans">Laptop Connection</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+
+                        <!-- 8. About REDLINE -->
+                        <button onclick="drawerController.select('profile')" id="drawerLink-profile"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm">ℹ️</span>
+                                <span class="text-neutral-950 font-bold font-sans">About REDLINE</span>
+                            </div>
+                            <span class="text-neutral-400 font-mono text-sm">›</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Bottom of the drawer: the same "● MEMORY ACTIVE" status pill already used on the Dashboard header, styled identically -->
+                <div class="p-4 border-t border-neutral-200 bg-neutral-50/70">
+                    <div
+                        class="w-full py-2.5 px-3 bg-white border border-brand-border rounded-full shadow-xs flex items-center justify-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                        <span class="font-mono text-[10px] font-bold text-neutral-900 uppercase tracking-wider">● MEMORY
+                            ACTIVE</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- QUICK TOAST NOTIFICATION -->
+        <div id="toastNotification"
+            class="absolute top-16 inset-x-4 z-50 transition-all duration-300 transform -translate-y-16 opacity-0 pointer-events-none bg-neutral-900 text-white p-3.5 rounded-2xl shadow-xl border border-neutral-700 flex items-center justify-between font-mono text-xs">
+            <div class="flex items-center gap-2">
+                <span id="toastIcon" class="text-brand-red">🎙</span>
+                <span id="toastMessage">Simulating evidence audio playback...</span>
+            </div>
+            <span class="text-[10px] text-neutral-400">DISMISS</span>
+        </div>
+    </div>
+
+    <!-- APPLICATION STATE MACHINE & FLOW LOGIC -->
+    <script>
+        // --- CLIENT ROUTER FOR ALL SEGMENTS ---
+        const screens = ['dashboard', 'capture', 'result', 'audit', 'timeline', 'calendar', 'profile'];
+        const screenTitles = {
+            dashboard: '1. DASHBOARD DECK',
+            capture: '2. ACTIVE CAPTURE',
+            result: '3. POST-MEETING RESULT',
+            audit: '4. CONTRADICTION AUDIT',
+            timeline: '5. DECISION TIMELINE',
+            calendar: '6. CALENDAR',
+            profile: '7. PROFILE & MENU'
+        };
+
+        const router = {
+            current: 'dashboard',
+            history: ['dashboard'],
+            navigate(screenId, pushHistory = true) {
+                if (!screens.includes(screenId)) return;
+
+                // Manage view states
+                screens.forEach(id => {
+                    const el = document.getElementById(`view-${id}`);
+                    if (el) {
+                        if (id === screenId) {
+                            el.classList.remove('screen-hidden');
+                            el.classList.add('screen-active');
+                        } else {
+                            el.classList.add('screen-hidden');
+                            el.classList.remove('screen-active');
+                        }
+                    }
+                });
+                if (pushHistory && this.current !== screenId) {
+                    this.history.push(screenId);
+                }
+                this.current = screenId;
+                // Scroll viewport to top
+                document.getElementById('appViewport').scrollTop = 0;
+                // Update UI headers & breadcrumbs
+                document.getElementById('currentScreenBreadcrumb').textContent = screenTitles[screenId] || screenId.toUpperCase();
+
+                // Update Back button visibility
+                const backBtn = document.getElementById('headerBackBtn');
+                const menuBtn = document.getElementById('headerMenuBtn');
+                const backLabel = document.getElementById('headerBackLabel');
+                if (screenId === 'dashboard') {
+                    backBtn.classList.add('hidden');
+                    backBtn.classList.remove('flex');
+                    menuBtn.classList.remove('hidden');
+                } else {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                    menuBtn.classList.add('hidden');
+                    backLabel.textContent = screenId === 'timeline' ? 'AUDIT' : 'BACK';
+                }
+                // Update Bottom Nav Highlighting
+                const navStream = document.getElementById('navStream');
+                const navAudit = document.getElementById('navAudit');
+
+                // Reset colors
+                navStream.className = 'flex flex-col items-center gap-1 text-neutral-400 hover:text-neutral-900 transition group py-1';
+                navAudit.className = 'flex flex-col items-center gap-1 text-neutral-400 hover:text-neutral-900 transition group py-1';
+                if (screenId === 'dashboard') {
+                    navStream.className = 'flex flex-col items-center gap-1 text-brand-red transition group py-1';
+                } else if (screenId === 'audit' || screenId === 'timeline' || screenId === 'result') {
+                    navAudit.className = 'flex flex-col items-center gap-1 text-brand-red transition group py-1';
+                }
+            },
+            back() {
+                if (this.history.length > 1) {
+                    this.history.pop();
+                    const prev = this.history[this.history.length - 1];
+                    this.navigate(prev, false);
+                } else {
+                    this.navigate('dashboard', false);
+                }
+            }
+        };
+
+        // --- NAVIGATION DRAWER CONTROLLER ---
+        const drawerController = {
+            isOpen: false,
+            open() {
+                this.isOpen = true;
+                const container = document.getElementById('navDrawerContainer');
+                const panel = document.getElementById('navDrawerPanel');
+                container.classList.remove('pointer-events-none', 'opacity-0');
+                container.classList.add('pointer-events-auto', 'opacity-100');
+                panel.classList.remove('-translate-x-full');
+                panel.classList.add('translate-x-0');
+                this.updateActiveStyles();
+            },
+            close() {
+                this.isOpen = false;
+                const container = document.getElementById('navDrawerContainer');
+                const panel = document.getElementById('navDrawerPanel');
+                panel.classList.remove('translate-x-0');
+                panel.classList.add('-translate-x-full');
+                container.classList.remove('pointer-events-auto', 'opacity-100');
+                container.classList.add('pointer-events-none', 'opacity-0');
+            },
+            select(screenId) {
+                this.close();
+                router.navigate(screenId);
+            },
+            updateActiveStyles() {
+                const linkIds = ['dashboard', 'capture', 'calendar', 'timeline', 'audit', 'profile'];
+                linkIds.forEach(id => {
+                    const link = document.getElementById(`drawerLink-${id}`);
+                    if (!link) return;
+                    if (router.current === id) {
+                        link.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-bold text-brand-red bg-[#fdeaea] border border-brand-red/30 transition';
+                    } else {
+                        link.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition';
+                    }
+                });
+            }
+        };
+
+        // --- CALENDAR COMMITMENTS CONTROLLER ---
+        const calendarCommitmentsData = {
+            2: [
+                {
+                    title: "API Gateway 14-Day Audit Schedule Freeze",
+                    owner: "SecOps Team Lead",
+                    status: "On Track",
+                    statusBadge: "bg-neutral-900 text-white",
+                    meta: "CONFIRMED TIMELINE LOCK",
+                    metaColor: "text-neutral-600"
+                }
+            ],
+            8: [
+                {
+                    title: "Perimeter Vulnerability Report Delivery",
+                    owner: "Marcus T.",
+                    status: "On Track",
+                    statusBadge: "bg-neutral-900 text-white",
+                    meta: "MILESTONE VERIFIED",
+                    metaColor: "text-neutral-600"
+                }
+            ],
+            12: [
+                {
+                    title: "Product GA Launch Window",
+                    owner: "Marcus Vance",
+                    status: "Overdue",
+                    statusBadge: "bg-red-100 text-brand-red",
+                    meta: "CONFLICT WITH RULE #104.B",
+                    metaColor: "text-brand-red font-bold"
+                }
+            ],
+            19: [
+                {
+                    title: "Cryptographic Audit Signoff & Production Ingress",
+                    owner: "Lead Cryptographer",
+                    status: "On Track",
+                    statusBadge: "bg-neutral-900 text-white",
+                    meta: "14-DAY OBSERVATION CONCLUDES",
+                    metaColor: "text-neutral-600"
+                }
+            ]
+        };
+
+        const calendarController = {
+            selectedDay: 12,
+            selectDate(day) {
+                this.selectedDay = day;
+                const header = document.getElementById('calSelectedDayHeader');
+                const count = document.getElementById('calSelectedDayCount');
+                const list = document.getElementById('calCommitmentsList');
+
+                header.textContent = `OCTOBER ${day} COMMITMENTS`;
+                const items = calendarCommitmentsData[day] || [];
+                count.textContent = items.length === 1 ? '1 DUE' : `${items.length} DUE`;
+
+                if (items.length === 0) {
+                    list.innerHTML = `
+        <div class="bg-white border border-neutral-200 rounded-2xl p-4 text-center shadow-2xs">
+          <p class="font-mono text-xs text-neutral-400">No scheduled commitments for October ${day}, 2024.</p>
+        </div>
+      `;
+                } else {
+                    list.innerHTML = items.map(item => `
+        <div class="bg-white border border-neutral-200 rounded-2xl p-3.5 shadow-2xs space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="font-sans font-bold text-sm text-neutral-950 leading-snug">${item.title}</h4>
+              <p class="font-mono text-xs text-neutral-400 mt-0.5">Owner: ${item.owner}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full ${item.statusBadge} font-mono text-[9px] font-bold tracking-wider uppercase shrink-0">${item.status}</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-neutral-100 text-[10px] font-mono text-neutral-500">
+            <span>DUE: OCT ${day}, 2024</span>
+            <span class="${item.metaColor}">${item.meta}</span>
+          </div>
+        </div>
+      `).join('');
+                }
+            }
+        };
+
+        // --- STACKED CAROUSEL DECK CONTROLLER ---
+        const deckController = {
+            currentIndex: 0,
+            cards: ['deckCard0', 'deckCard1', 'deckCard2'],
+
+            update() {
+                const total = this.cards.length;
+                document.getElementById('deckCounter').textContent = (this.currentIndex + 1);
+                this.cards.forEach((cardId, idx) => {
+                    const el = document.getElementById(cardId);
+                    if (!el) return;
+
+                    const pos = (idx - this.currentIndex + total) % total;
+                    el.className = `absolute inset-0 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm transition-all duration-300 stack-card-${pos}`;
+                    if (pos === 0) {
+                        el.classList.add('cursor-pointer', 'hover:border-brand-red/50');
+                    }
+                });
+                const dots = document.getElementById('deckDots').children;
+                for (let i = 0; i < dots.length; i++) {
+                    if (i === this.currentIndex) {
+                        dots[i].className = 'w-4 h-1.5 rounded-full bg-brand-red transition-all';
+                    } else {
+                        dots[i].className = 'w-1.5 h-1.5 rounded-full bg-neutral-300';
+                    }
+                }
+            },
+            next() {
+                this.currentIndex = (this.currentIndex + 1) % this.cards.length;
+                this.update();
+            },
+            prev() {
+                this.currentIndex = (this.currentIndex - 1 + this.cards.length) % this.cards.length;
+                this.update();
+            }
+        };
+
+        // --- CAPTURE AUDIO WAVEFORM & TIMER SIMULATION ---
+        const captureEngine = {
+            recording: true,
+            paused: false,
+            seconds: 260,
+            timerInterval: null,
+            waveInterval: null,
+            init() {
+                this.generateWaveform();
+                this.startTimers();
+            },
+            generateWaveform() {
+                const container = document.getElementById('waveformContainer');
+                container.innerHTML = '';
+                const barCount = 22;
+                for (let i = 0; i < barCount; i++) {
+                    const bar = document.createElement('div');
+                    const isRed = i >= 8 && i <= 14;
+                    bar.className = `wf-bar ${isRed ? 'red' : ''}`;
+                    bar.style.height = `${Math.floor(Math.random() * 38) + 10}px`;
+                    container.appendChild(bar);
+                }
+            },
+            startTimers() {
+                clearInterval(this.timerInterval);
+                clearInterval(this.waveInterval);
+                this.timerInterval = setInterval(() => {
+                    if (!this.recording || this.paused) return;
+                    this.seconds++;
+                    const mins = String(Math.floor(this.seconds / 60)).padStart(2, '0');
+                    const secs = String(this.seconds % 60).padStart(2, '0');
+                    document.getElementById('captureTimer').textContent = `00:${mins}:${secs}`;
+                }, 1000);
+                this.waveInterval = setInterval(() => {
+                    if (!this.recording || this.paused) return;
+                    const bars = document.querySelectorAll('.wf-bar');
+                    bars.forEach(b => {
+                        const h = Math.floor(Math.random() * 46) + 8;
+                        b.style.height = `${h}px`;
+                    });
+                }, 160);
+            },
+            togglePause() {
+                this.paused = !this.paused;
+                const label = document.getElementById('pauseBtnLabel');
+                label.textContent = this.paused ? 'RESUME' : 'PAUSE';
+                toast('Capture ' + (this.paused ? 'paused.' : 'resumed.'));
+            },
+            toggleRecord() {
+                if (this.recording) {
+                    this.stopAndCompile();
+                } else {
+                    this.recording = true;
+                    toast('Capture active and recording PCM telemetry.');
+                }
+            },
+            stopAndCompile() {
+                this.recording = false;
+                toast('Compiling telemetry... Step 6/6 PROVE completed.');
+                setTimeout(() => {
+                    router.navigate('result');
+                }, 450);
+            }
+        };
+
+        // --- AUDIO SIMULATION NOTIFICATIONS ---
+        const audioSimulator = {
+            playClip(node) {
+                const txt = node === 'A' ? 'Google Meet [09:12] - Head of Product statement' : 'Zoom [24:45] - SecOps Lead compliance statement';
+                toast(`Playing telemetry clip: ${txt}`, '🎧');
+            },
+            playEvidence() {
+                toast('Audio buffer playback: Marcus (SecOps Lead) - 14-day freeze mandate', '🔊');
+            }
+        };
+
+        // --- TOAST NOTIFICATION UTILITY ---
+        function toast(msg, icon = '🎙') {
+            const el = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            document.getElementById('toastIcon').textContent = icon;
+
+            el.classList.remove('-translate-y-16', 'opacity-0', 'pointer-events-none');
+            el.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                el.classList.add('-translate-y-16', 'opacity-0', 'pointer-events-none');
+                el.classList.remove('translate-y-0', 'opacity-100');
+            }, 2600);
+        }
+
+        // --- SETTINGS TOGGLE ---
+        const settingsManager = {
+            enclaveActive: true,
+            toggleEnclave() {
+                this.enclaveActive = !this.enclaveActive;
+                const knob = document.getElementById('enclaveToggleKnob');
+                const btn = document.getElementById('enclaveToggleBtn');
+                if (this.enclaveActive) {
+                    knob.className = 'w-6 h-6 bg-white rounded-full shadow-md transform translate-x-5 transition-transform duration-200 ease-in-out flex items-center justify-center text-[10px] text-brand-red font-bold';
+                    btn.className = 'w-12 h-7 bg-brand-red rounded-full p-0.5 transition-colors duration-200 ease-in-out relative flex items-center';
+                    toast('Enclave Isolation: FULL ZERO-INGRESS LOCKED');
+                } else {
+                    knob.className = 'w-6 h-6 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-200 ease-in-out flex items-center justify-center text-[10px] text-neutral-400 font-bold';
+                    btn.className = 'w-12 h-7 bg-neutral-300 rounded-full p-0.5 transition-colors duration-200 ease-in-out relative flex items-center';
+                    toast('Enclave Isolation: Relaxed mode (Local testing only)');
+                }
+            }
+        };
+
+        // --- DEMO SEQUENCE CONTROLLER ---
+        const demoSequence = {
+            steps: ['dashboard', 'capture', 'result', 'audit', 'timeline', 'calendar', 'profile'],
+            currentIndex: 0,
+            next() {
+                this.currentIndex = (this.currentIndex + 1) % this.steps.length;
+                router.navigate(this.steps[this.currentIndex]);
+            },
+            runFull() {
+                toast('▶ Judge Demo Mode Initialized: Running Meeting Sequence Replay...');
+                router.navigate('capture');
+                setTimeout(() => {
+                    toast('Step 2: Compiling acoustic intake... ');
+                    router.navigate('result');
+                    setTimeout(() => {
+                        toast('Step 3: Critical contradiction flagged!');
+                        router.navigate('audit');
+                    }, 1800);
+                }, 1800);
+            }
+        };
+
+        const alertModal = {
+            show(title, detail) {
+                toast(`${title}: ${detail}`, 'ℹ️');
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            captureEngine.init();
+        });
+    </script>
+</body>
+
+</html>
