@@ -18,6 +18,7 @@ interface DesktopWindowFrameProps {
   evidenceList: Evidence[];
   onSwitchToMobile?: () => void;
   initialTab?: DesktopTab;
+  isBackendConnected?: boolean;
 }
 
 export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
@@ -27,6 +28,7 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
   commitments,
   evidenceList,
   initialTab = "dashboard",
+  isBackendConnected = false,
 }) => {
   const [currentTab, setCurrentTab] = useState<DesktopTab>(initialTab);
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; message: string }>({
@@ -82,13 +84,21 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
         </div>
 
         {/* Right: Link Pill and Status */}
-        <div className="flex items-center justify-end w-40">
+        <div className="flex items-center justify-end gap-2 w-64">
+          <div
+            id="desktopBackendStatusPill"
+            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-[10px] font-mono font-medium text-neutral-600"
+            title={isBackendConnected ? "Backend: Connected (SQLite)" : "Backend: Offline (local demo)"}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isBackendConnected ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`}></span>
+            <span>{isBackendConnected ? "Backend: Connected" : "Backend: Offline"}</span>
+          </div>
           <div
             onClick={() => setCurrentTab("devices")}
             className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-[10px] font-mono font-medium text-neutral-600 cursor-pointer hover:bg-neutral-200 transition"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>LINK: 5.2GHz AIR</span>
+            <span>LINK: 5.2GHz</span>
           </div>
         </div>
       </header>

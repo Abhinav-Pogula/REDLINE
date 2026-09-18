@@ -49,6 +49,7 @@ export default function Home() {
           commitments={redline.commitments}
           evidenceList={redline.evidenceList}
           initialTab={redline.selectedConflict ? "conflicts" : "dashboard"}
+          isBackendConnected={redline.isBackendConnected}
         />
       </div>
 
@@ -63,6 +64,7 @@ export default function Home() {
             onOpenDrawer={() => redline.setDrawerOpen(true)}
             onGoBack={redline.goBack}
             onNavigate={redline.navigate}
+            isBackendConnected={redline.isBackendConnected}
           />
 
           {/* Quick Breadcrumb Bar */}
