@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEvidenceById } from "../../../../lib/db";
+import { getEvidenceById } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 

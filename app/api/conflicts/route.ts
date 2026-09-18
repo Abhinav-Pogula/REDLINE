@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAllDecisions, getAllConstraints, getAllCommitments, getAllEvidence } from "../../../lib/db";
-import { evaluateProjectMemory } from "../../../lib/conflict-engine";
+import { getAllDecisions, getAllConstraints, getAllCommitments, getAllEvidence } from "@/lib/db";
+import { evaluateProjectMemory } from "@/lib/conflict-engine";
 
 export const dynamic = "force-dynamic";
 

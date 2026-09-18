@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resetToSeed } from "../../../../lib/db";
-import { canonicalHeroScenario, compliantScenario } from "../../../../lib/demo";
+import { resetToSeed } from "@/lib/db";
+import { canonicalHeroScenario, compliantScenario } from "@/lib/demo";
 
 export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
