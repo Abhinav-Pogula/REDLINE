@@ -1,6 +1,7 @@
 import { Decision, Constraint, Commitment, Conflict, Evidence, TimelineEvent } from "./data";
 import { canonicalHeroScenario, compliantScenario, Scenario } from "./demo";
 import { evaluateProjectMemory, EngineResult } from "./conflict-engine";
+import { IngestResult } from "./types";
 
 export interface RedlineState {
   currentScenarioId: string;
@@ -64,6 +65,28 @@ export function saveRedlineState(state: RedlineState): void {
   } catch (e) {
     console.warn("Could not write to localStorage", e);
   }
+}
+
+/**
+ * Folds a memory-engine ingest result into an existing RedlineState — the
+ * one call the UI wiring phase will need after a user pastes a transcript.
+ * Not wired up to the hook/components yet by design (backend-first, per
+ * plan); kept here so wiring is a one-line call rather than another
+ * merge implementation.
+ */
+export function mergeIngestResultIntoState(state: RedlineState, ingest: IngestResult): RedlineState {
+  const newState: RedlineState = {
+    ...state,
+    decisions: ingest.mergedDecisions,
+    constraints: ingest.mergedConstraints,
+    commitments: ingest.mergedCommitments,
+    evidence: ingest.mergedEvidence,
+    engineResult: ingest.engineResult,
+    selectedConflictId: ingest.engineResult.conflicts.length > 0 ? ingest.engineResult.conflicts[0].id : null,
+    lastUpdated: new Date().toISOString(),
+  };
+  saveRedlineState(newState);
+  return newState;
 }
 
 export function resetToScenario(scenarioId: "scenario-conflict" | "scenario-compliant"): RedlineState {

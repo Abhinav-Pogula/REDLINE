@@ -1,56 +1,22 @@
-export type DecisionStatus = "proposed" | "confirmed" | "uncertain" | "conflicting";
-export type ConstraintStatus = "active" | "satisfied" | "violated" | "uncertain";
+// ============================================================================
+// REDLINE — Seed/demo data + backward-compatible type re-exports.
+// lib/types.ts is the canonical schema; this file re-exports the entity
+// types from there (so existing `import { Decision } from "./data"` call
+// sites keep working) and holds the hardcoded hero-scenario seed records.
+// ============================================================================
 
-export interface Evidence {
-  id: string;
-  meetingId: string;
-  meetingTitle: string;
-  source: "google_meet" | "zoom" | "teams" | "whatsapp_call" | "cellular_call" | "phone_audio" | "demo";
-  timestamp: string;
-  text: string;
-}
+export type {
+  DecisionStatus,
+  ConstraintStatus,
+  Evidence,
+  Decision,
+  Constraint,
+  Commitment,
+  Conflict,
+  TimelineEvent,
+} from "./types";
 
-export interface Decision {
-  id: string;
-  topic: string;
-  value: string;
-  status: DecisionStatus;
-  evidenceId: string;
-  supersedesDecisionId?: string;
-}
-
-export interface Constraint {
-  id: string;
-  topic: string;
-  rule: string;
-  status: ConstraintStatus;
-  evidenceId: string;
-}
-
-export interface Commitment {
-  id: string;
-  task: string;
-  owner: string;
-  due: string;
-  evidenceId: string;
-}
-
-export interface Conflict {
-  id: string;
-  type: "date" | "ownership" | "dependency";
-  title: string;
-  explanation: string;
-  newEvidenceId: string;
-  existingEvidenceId: string;
-  status: "open" | "dismissed" | "resolved";
-}
-
-export interface TimelineEvent {
-  date: string;
-  label: string;
-  detail: string;
-  kind: "constraint" | "decision" | "status" | "conflict";
-}
+import { Evidence, Decision, Constraint, Commitment, TimelineEvent } from "./types";
 
 export const evidence: Evidence[] = [
   { id: "ev-01", meetingId: "m1", meetingTitle: "Meeting 01", source: "google_meet", timestamp: "10:12 AM", text: "We'll launch the product on September 25." },
@@ -65,35 +31,12 @@ export const decisions: Decision[] = [
 ];
 
 export const constraints: Constraint[] = [
-  { id: "c-01", topic: "Security review", rule: "Must be completed 2 days before launch", status: "violated", evidenceId: "ev-02" },
+  { id: "c-01", topic: "Security review", rule: "Must be completed 2 days before launch", status: "violated", evidenceId: "ev-02", leadTimeDays: 2 },
 ];
 
 export const commitments: Commitment[] = [
   { id: "cm-01", task: "API integration", owner: "Rahul", due: "Friday", evidenceId: "ev-04" },
 ];
-
-export function runConflictEngine(): Conflict[] {
-  const conflicts: Conflict[] = [];
-  const latestLaunch = decisions.find(
-    (d) => d.topic === "Launch date" && !decisions.some((o) => o.supersedesDecisionId === d.id)
-  );
-  const securityConstraint = constraints.find((c) => c.topic === "Security review");
-
-  if (latestLaunch && securityConstraint && securityConstraint.status !== "satisfied") {
-    conflicts.push({
-      id: "conf-01",
-      type: "dependency",
-      title: "Launch may conflict with security dependency",
-      explanation:
-        "The current launch date depends on a security review that is still incomplete. " +
-        "Security review must be completed before launch, but its current status is incomplete.",
-      newEvidenceId: latestLaunch.evidenceId,
-      existingEvidenceId: securityConstraint.evidenceId,
-      status: "open",
-    });
-  }
-  return conflicts;
-}
 
 export const timeline: TimelineEvent[] = [
   { date: "SEP 20", label: "Security review", detail: "must be completed before launch.", kind: "constraint" },
