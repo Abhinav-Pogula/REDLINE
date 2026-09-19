@@ -141,4 +141,28 @@ export function resetToSeed(scenario: {
   clearAndInsert();
 }
 
+export function addEvidence(e: Evidence) {
+  db.prepare(
+    `INSERT INTO evidence (id, meetingId, meetingTitle, source, timestamp, text) VALUES (@id, @meetingId, @meetingTitle, @source, @timestamp, @text)`
+  ).run(e);
+}
+
+export function addDecision(d: Decision) {
+  db.prepare(
+    `INSERT INTO decisions (id, topic, value, status, evidenceId, supersedesDecisionId) VALUES (@id, @topic, @value, @status, @evidenceId, @supersedesDecisionId)`
+  ).run({ ...d, supersedesDecisionId: d.supersedesDecisionId ?? null });
+}
+
+export function addConstraint(c: Constraint) {
+  db.prepare(
+    `INSERT INTO constraints (id, topic, rule, status, evidenceId) VALUES (@id, @topic, @rule, @status, @evidenceId)`
+  ).run(c);
+}
+
+export function addCommitment(c: Commitment) {
+  db.prepare(
+    `INSERT INTO commitments (id, task, owner, due, evidenceId) VALUES (@id, @task, @owner, @due, @evidenceId)`
+  ).run(c);
+}
+
 export default db;

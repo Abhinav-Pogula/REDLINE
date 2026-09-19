@@ -10,12 +10,18 @@ interface CaptureProps {
   pipelineStep?: number;
   setPipelineStep?: (step: number) => void;
   onShowAlert?: (title: string, message: string) => void;
+  onExtractTranscript?: (transcript: string) => Promise<void>;
+  isExtracting?: boolean;
 }
 
 export const Capture: React.FC<CaptureProps> = ({
   onNavigate,
   onShowAlert,
+  onExtractTranscript,
+  isExtracting = false,
 }) => {
+  const [intakeMode, setIntakeMode] = useState<"audio" | "paste">("paste");
+  const [transcriptInput, setTranscriptInput] = useState<string>("");
   const [selectedSource, setSelectedSource] = useState<string>("Auto");
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [seconds, setSeconds] = useState<number>(260); // 00:04:20
@@ -53,24 +59,126 @@ export const Capture: React.FC<CaptureProps> = ({
     onNavigate("result");
   };
 
+  const handlePasteSubmit = async () => {
+    if (!transcriptInput.trim() || !onExtractTranscript) return;
+    await onExtractTranscript(transcriptInput);
+  };
+
   return (
     <section id="view-capture" className="screen-transition screen-active p-4 space-y-4 pb-28">
-      {/* Capture Mode State Bar */}
-      <div className="bg-[#fdeaea] border-l-4 border-brand-red rounded-xl p-3 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 font-display font-bold text-sm text-neutral-900">
-            <span className="w-2.5 h-2.5 rounded-full bg-brand-red animate-ping"></span>
-            <span>REDLINE IS CAPTURING</span>
-          </div>
-          <p className="text-[11px] font-mono text-neutral-500 mt-0.5">DEVICE AUDIO + MICROPHONE</p>
-        </div>
-        <div className="text-right">
-          <span className="px-2 py-0.5 bg-white border border-brand-red/30 rounded text-[9px] font-mono font-bold text-brand-red">
-            STATE A // LIVE
-          </span>
-          <p className="text-[9px] font-mono text-neutral-500 mt-1">48kHz • RAW PCM</p>
-        </div>
+      {/* Mode Selector Header */}
+      <div className="flex items-center bg-neutral-100 p-1 rounded-2xl border border-neutral-200">
+        <button
+          type="button"
+          onClick={() => setIntakeMode("audio")}
+          className={`flex-1 py-2 font-mono text-xs font-bold rounded-xl transition ${
+            intakeMode === "audio"
+              ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200"
+              : "text-neutral-500 hover:text-neutral-900"
+          }`}
+        >
+          🎙️ Audio Intake
+        </button>
+        <button
+          type="button"
+          onClick={() => setIntakeMode("paste")}
+          className={`flex-1 py-2 font-mono text-xs font-bold rounded-xl transition ${
+            intakeMode === "paste"
+              ? "bg-brand-red text-white shadow-2xs"
+              : "text-neutral-500 hover:text-neutral-900"
+          }`}
+        >
+          📝 Paste Transcript
+        </button>
       </div>
+
+      {intakeMode === "paste" ? (
+        /* PASTE TRANSCRIPT INPUT MODE */
+        <div className="bg-white border border-neutral-200 rounded-3xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500">
+            <span className="font-bold text-neutral-900">PASTE TRANSCRIPT FALLBACK</span>
+            <span className="px-2 py-0.5 bg-brand-red/10 border border-brand-red/30 rounded text-[9px] font-mono font-bold text-brand-red">
+              P0 INTAKE
+            </span>
+          </div>
+          <p className="text-xs text-neutral-600 font-sans leading-relaxed">
+            Paste unstructured meeting transcripts here. REDLINE will extract decisions, constraints, and commitments using on-device LLM intelligence.
+          </p>
+          <textarea
+            value={transcriptInput}
+            onChange={(e) => setTranscriptInput(e.target.value)}
+            placeholder="Paste transcript text here...&#10;e.g. 'Let\'s move the launch to October 10th because security review is still pending.'"
+            rows={5}
+            disabled={isExtracting}
+            className="w-full p-3 border border-neutral-300 rounded-xl text-xs font-mono focus:outline-none focus:border-brand-red bg-neutral-50 text-neutral-900 resize-none"
+          />
+
+          {/* Quick sample shortcut */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono text-neutral-400">QUICK SAMPLE:</span>
+            <button
+              type="button"
+              onClick={() => setTranscriptInput("Let's move the launch to October 10th because security review is still pending.")}
+              className="block text-left text-[11px] font-mono text-brand-red hover:underline bg-red-50 p-2 rounded-lg border border-red-100 w-full"
+            >
+              &quot;Let&apos;s move the launch to October 10th because security review is still pending.&quot;
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={handlePasteSubmit}
+            disabled={isExtracting || !transcriptInput.trim()}
+            className={`w-full py-3.5 rounded-2xl font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-sm transition ${
+              isExtracting || !transcriptInput.trim()
+                ? "bg-neutral-300 text-neutral-500 cursor-not-allowed"
+                : "bg-brand-red hover:bg-brand-redDark text-white active:scale-98"
+            }`}
+          >
+            {isExtracting ? (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                <span>Processing on-device...</span>
+              </>
+            ) : (
+              <>
+                <span>⚡</span>
+                <span>EXTRACT STRUCTURED MEMORY</span>
+              </>
+            )}
+          </button>
+
+          {isExtracting && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center space-y-1">
+              <div className="font-mono text-xs text-amber-800 font-bold flex items-center justify-center gap-2">
+                <span className="animate-spin text-sm">⚙️</span>
+                <span>Processing on-device...</span>
+              </div>
+              <p className="text-[11px] text-amber-700 font-mono">
+                Cold starts on local Ollama LLM may take 15&ndash;45+ seconds. Extraction running...
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* AUDIO INTAKE MODE */
+        <>
+          {/* Capture Mode State Bar */}
+          <div className="bg-[#fdeaea] border-l-4 border-brand-red rounded-xl p-3 flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-1.5 font-display font-bold text-sm text-neutral-900">
+                <span className="w-2.5 h-2.5 rounded-full bg-brand-red animate-ping"></span>
+                <span>REDLINE IS CAPTURING</span>
+              </div>
+              <p className="text-[11px] font-mono text-neutral-500 mt-0.5">DEVICE AUDIO + MICROPHONE</p>
+            </div>
+            <div className="text-right">
+              <span className="px-2 py-0.5 bg-white border border-brand-red/30 rounded text-[9px] font-mono font-bold text-brand-red">
+                STATE A // LIVE
+              </span>
+              <p className="text-[9px] font-mono text-neutral-500 mt-1">48kHz • RAW PCM</p>
+            </div>
+          </div>
 
       {/* Center Acoustic Intake Console */}
       <div className="bg-white border border-neutral-200 rounded-3xl p-6 text-center shadow-sm relative overflow-hidden">
@@ -221,6 +329,8 @@ export const Capture: React.FC<CaptureProps> = ({
           <span>STOP &amp; COMPILE</span>
         </button>
       </div>
-    </section>
+    </>
+  )}
+</section>
   );
 };

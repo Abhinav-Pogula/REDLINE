@@ -13,6 +13,7 @@ interface ConflictAnalysisProps {
 
 export const ConflictAnalysis: React.FC<ConflictAnalysisProps> = ({
   onNavigate,
+  selectedConflict,
   onShowAlert,
 }) => {
   const playClip = (clipName: "A" | "B") => {
@@ -31,6 +32,9 @@ export const ConflictAnalysis: React.FC<ConflictAnalysisProps> = ({
     }
   };
 
+  const conflictTitle = selectedConflict?.title || "Launch Date Shift Violates Security Buffer";
+  const conflictExplanation = selectedConflict?.explanation || "Autonomous memory inspection flagged an irreconcilable scheduling paradox between live tactical roadmaps and cryptographically locked security thresholds.";
+
   return (
     <section id="view-audit" className="screen-transition screen-active p-4 space-y-4 pb-28">
       {/* Top Sub-Nav Telemetry Tag */}
@@ -39,7 +43,7 @@ export const ConflictAnalysis: React.FC<ConflictAnalysisProps> = ({
           <span className="w-1.5 h-1.5 rounded-full bg-brand-red"></span>
           CRITICAL DESYNC
         </span>
-        <span className="text-neutral-500">REF: #RL-9041-C</span>
+        <span className="text-neutral-500">REF: #{selectedConflict?.id || "RL-9041-C"}</span>
         <span className="text-neutral-400 font-mono">HASH: 7F4A...B991</span>
       </div>
 
@@ -53,10 +57,10 @@ export const ConflictAnalysis: React.FC<ConflictAnalysisProps> = ({
           <span className="font-mono text-[10px] text-neutral-600 font-bold">CONFIDENCE: 98.4%</span>
         </div>
         <h2 className="font-display font-bold text-lg text-neutral-950 leading-snug">
-          Launch Date Shift Violates Security Buffer
+          {conflictTitle}
         </h2>
         <p className="text-xs text-neutral-700 font-sans mt-1.5 leading-relaxed">
-          Autonomous memory inspection flagged an irreconcilable scheduling paradox between live tactical roadmaps and cryptographically locked security thresholds.
+          {conflictExplanation}
         </p>
       </div>
 

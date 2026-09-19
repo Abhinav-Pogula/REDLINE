@@ -48,7 +48,7 @@ export function evaluateProjectMemory(
   });
 
   // RULE 1: Dependency Conflict (e.g. Launch date vs Security Review / Prerequisite)
-  const latestLaunch = activeDecisions.find(
+  const latestLaunch = [...activeDecisions].reverse().find(
     (d) => d.topic.toLowerCase().includes("launch")
   );
   const securityConstraint = currentConstraints.find((c) =>

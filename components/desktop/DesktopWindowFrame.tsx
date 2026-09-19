@@ -19,6 +19,8 @@ interface DesktopWindowFrameProps {
   onSwitchToMobile?: () => void;
   initialTab?: DesktopTab;
   isBackendConnected?: boolean;
+  onExtractTranscript?: (transcript: string) => Promise<void>;
+  isExtracting?: boolean;
 }
 
 export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
@@ -29,6 +31,8 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
   evidenceList,
   initialTab = "dashboard",
   isBackendConnected = false,
+  onExtractTranscript,
+  isExtracting = false,
 }) => {
   const [currentTab, setCurrentTab] = useState<DesktopTab>(initialTab);
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; message: string }>({
@@ -134,6 +138,8 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
             <DesktopRecord
               onStopAndCompile={() => setCurrentTab("conflicts")}
               onOpenConflict={() => setCurrentTab("conflicts")}
+              onExtractTranscript={onExtractTranscript}
+              isExtracting={isExtracting}
             />
           )}
 

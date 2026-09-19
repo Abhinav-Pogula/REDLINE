@@ -30,6 +30,8 @@ export function useRedline() {
   // Active scenario, backend status, and memory state
   const [activeScenarioId, setActiveScenarioId] = useState<string>("scenario-conflict");
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
+  const [lastExtracted, setLastExtracted] = useState<any | null>(null);
   const [decisions, setDecisions] = useState<Decision[]>([...canonicalHeroScenario.decisions]);
   const [constraints, setConstraints] = useState<Constraint[]>([...canonicalHeroScenario.constraints]);
   const [commitments, setCommitments] = useState<Commitment[]>([...canonicalHeroScenario.commitments]);
@@ -125,9 +127,80 @@ export function useRedline() {
     });
   }, []);
 
+  const extractTranscript = useCallback(
+    async (transcript: string) => {
+      if (!transcript || !transcript.trim()) return;
+      setIsExtracting(true);
+      try {
+        const beforeConflicts = [...engineResult.conflicts];
+        const res = await fetch("/api/extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: Failed to extract transcript.`);
+        }
+
+        const data = await res.json();
+        setLastExtracted(data.extracted);
+
+        // Fetch fresh server state from GET /api/dashboard
+        const dashRes = await fetch("/api/dashboard", { cache: "no-store" });
+        if (dashRes.ok) {
+          const dashData = await dashRes.json();
+          if (
+            Array.isArray(dashData.decisions) &&
+            Array.isArray(dashData.constraints) &&
+            Array.isArray(dashData.commitments) &&
+            Array.isArray(dashData.evidence)
+          ) {
+            setDecisions(dashData.decisions);
+            setConstraints(dashData.constraints);
+            setCommitments(dashData.commitments);
+            setEvidenceList(dashData.evidence);
+
+            const updatedEngine = evaluateProjectMemory(
+              dashData.decisions,
+              dashData.constraints,
+              dashData.commitments,
+              dashData.evidence
+            );
+            setEngineResult(updatedEngine);
+
+            // Compare conflicts before and after
+            const beforeIds = new Set(beforeConflicts.map((c) => c.id));
+            const newConflict = updatedEngine.conflicts.find(
+              (c) => c.newEvidenceId === data.evidenceId || !beforeIds.has(c.id)
+            );
+
+            if (newConflict) {
+              setSelectedConflict(newConflict);
+              setCurrentScreen("conflict");
+              showToast("New conflict identified from transcript!");
+            } else {
+              if (updatedEngine.conflicts.length > 0) {
+                setSelectedConflict(updatedEngine.conflicts[0]);
+              }
+              setCurrentScreen("result");
+              showToast("Transcript processed successfully!");
+            }
+          }
+        }
+      } catch (err: any) {
+        showAlert("Extraction Error", err.message || "Failed to extract transcript.");
+      } finally {
+        setIsExtracting(false);
+      }
+    },
+    [engineResult.conflicts, showAlert, showToast]
+  );
+
   // Reset to specified scenario (Hero Contradiction vs Verified Compliant)
   const loadScenario = useCallback(
     async (scenarioId: "scenario-conflict" | "scenario-compliant") => {
+      setLastExtracted(null);
       const scenario = scenarioId === "scenario-compliant" ? compliantScenario : canonicalHeroScenario;
       setActiveScenarioId(scenario.id);
       setCurrentScreen("dashboard");
@@ -166,6 +239,7 @@ export function useRedline() {
 
   // HERO JUDGE DEMO MODE AUTOMATION
   const runHeroDemo = useCallback(() => {
+    setLastExtracted(null);
     // 1. Reset to hero scenario with contradiction
     const scenario = canonicalHeroScenario;
     setActiveScenarioId(scenario.id);
@@ -218,6 +292,9 @@ export function useRedline() {
     showToast,
     activeScenarioId,
     isBackendConnected,
+    isExtracting,
+    lastExtracted,
+    extractTranscript,
     loadFromServer,
     loadScenario,
     runHeroDemo,
