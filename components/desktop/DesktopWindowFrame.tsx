@@ -22,6 +22,11 @@ interface DesktopWindowFrameProps {
   isBackendConnected?: boolean;
   onExtractTranscript?: (transcript: string) => Promise<ExtractOutcome>;
   isExtracting?: boolean;
+  /** The conflict most recently surfaced by an extraction (see useRedline's
+   * `selectedConflict`) -- passed through to DesktopConflicts so opening the
+   * Conflict Prover after a paste/recording shows THAT conflict, not
+   * whichever one happens to be first in the array. */
+  selectedConflict?: Conflict | null;
 }
 
 export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
@@ -34,6 +39,7 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
   isBackendConnected = false,
   onExtractTranscript,
   isExtracting = false,
+  selectedConflict,
 }) => {
   const [currentTab, setCurrentTab] = useState<DesktopTab>(initialTab);
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; message: string }>({
@@ -160,6 +166,7 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
               conflicts={conflicts}
               evidenceList={evidenceList}
               onOpenCalendar={() => setCurrentTab("calendar")}
+              selectedConflict={selectedConflict}
             />
           )}
         </main>

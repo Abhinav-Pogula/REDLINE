@@ -221,14 +221,40 @@ export function evaluateProjectMemory(
 
   // ----------------------------------------------------------------------
   // RULE 5 — Uncertainty Check: extracted facts that need human review.
+  // Unlike Rules 1/3/4, there's no second, contradicting piece of evidence
+  // here -- a single hedged statement ("we might...", "not sure yet...")
+  // is the whole problem. Still pushed into `conflicts` (not just
+  // `rulesChecked`) so it actually surfaces in the Conflict Prover and
+  // trips the same "new_conflict" UI path the other rules do, instead of
+  // silently vanishing into a field nothing renders.
   // ----------------------------------------------------------------------
-  const uncertainDecisions = currentDecisions.filter((d) => d.status === "uncertain");
   let rule5Triggered = false;
   let rule5Reason = "Confidence metric > 98% across all extracted facts.";
-  if (uncertainDecisions.length > 0) {
+
+  const uncertainDecisions = activeDecisions.filter((d) => d.status === "uncertain");
+  uncertainDecisions.forEach((decision) => {
     rule5Triggered = true;
+    const confidencePct = decision.confidence != null ? `${Math.round(decision.confidence * 100)}%` : "low";
     rule5Reason = `${uncertainDecisions.length} extracted statement(s) require human review before memory commit.`;
-  }
+
+    conflicts.push({
+      id: `conf-uncertain-${decision.id}`,
+      type: "uncertainty",
+      title: `${decision.topic} needs human confirmation before it's treated as decided`,
+      explanation:
+        `The statement behind "${decision.topic}: ${decision.value}" reads as a decision but carries hedge language ` +
+        `("might", "not sure", "maybe", ...), giving it only ${confidencePct} extraction confidence -- below the ` +
+        `98% floor REDLINE requires before committing a fact to memory as confirmed. Review the source evidence and ` +
+        `confirm or discard it before other rules treat it as settled.`,
+      newEvidenceId: decision.evidenceId,
+      existingEvidenceId: decision.evidenceId,
+      status: "open",
+      severity: "advisory",
+      affectedDecisionIds: [decision.id],
+      ruleCode: "RULE_5_UNCERTAINTY",
+    });
+  });
+
   rulesChecked.push({
     ruleCode: "RULE_5_UNCERTAINTY",
     name: "Confidence & Ambiguity Floor",

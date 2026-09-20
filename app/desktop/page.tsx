@@ -34,6 +34,7 @@ export default function DesktopPage() {
         isBackendConnected={redline.isBackendConnected}
         onExtractTranscript={redline.extractTranscript}
         isExtracting={redline.isExtracting}
+        selectedConflict={redline.selectedConflict}
       />
     </div>
   );

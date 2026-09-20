@@ -139,7 +139,14 @@ export const Capture: React.FC<CaptureProps> = ({
 
           {/* Quick sample shortcuts -- one per conflict rule, so every rule in
               the engine (lib/conflict-engine.ts) has a one-click path to
-              actually fire on screen instead of only existing internally. */}
+              actually fire on screen instead of only existing internally.
+              The Rule 5 sample deliberately talks about the design review,
+              NOT the launch date -- the seeded hero scenario already has an
+              open Rule 1 (launch vs. security review) conflict, so a hedged
+              decision on that same topic would also re-trigger Rule 1 and,
+              since only the first newly-triggered conflict is shown,
+              silently mask the Rule 5 result this button is meant to
+              demonstrate. */}
           <div className="space-y-1.5">
             <span className="text-[10px] font-mono text-neutral-400">QUICK SAMPLE:</span>
             <button
@@ -164,7 +171,7 @@ export const Capture: React.FC<CaptureProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setTranscriptInput("We might move the launch to November, but I'm not sure yet.")}
+              onClick={() => setTranscriptInput("We might move the design review to next month, but I'm not sure yet.")}
               className="block text-left text-[11px] font-mono text-brand-red hover:underline bg-red-50 p-2 rounded-lg border border-red-100 w-full"
             >
               <span className="text-neutral-400 mr-1">[RULE 5 · UNCERTAINTY]</span>

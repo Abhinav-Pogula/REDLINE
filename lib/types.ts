@@ -9,7 +9,7 @@ export type DecisionStatus = "proposed" | "confirmed" | "uncertain" | "conflicti
 export type ConstraintStatus = "active" | "satisfied" | "violated" | "uncertain";
 export type CommitmentStatus = "pending" | "in_progress" | "completed" | "blocked";
 export type ConflictStatus = "open" | "dismissed" | "resolved";
-export type ConflictType = "date" | "ownership" | "dependency" | "deadline";
+export type ConflictType = "date" | "ownership" | "dependency" | "deadline" | "uncertainty";
 export type ConflictSeverity = "critical" | "warning" | "advisory";
 export type EvidenceSourceType =
   | "meeting"

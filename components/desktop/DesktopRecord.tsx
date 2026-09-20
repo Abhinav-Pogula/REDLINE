@@ -187,6 +187,14 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
           </div>
 
           <div className="flex items-center justify-between flex-wrap gap-3">
+            {/* One sample per conflict rule (see lib/conflict-engine.ts). The
+                Rule 5 sample deliberately talks about the design review, NOT
+                the launch date -- the seeded hero scenario already has an
+                open Rule 1 (launch vs. security review) conflict, so a
+                hedged decision on that same topic would also re-trigger
+                Rule 1 and, since only the first newly-triggered conflict is
+                shown, silently mask the Rule 5 result this button is meant
+                to demonstrate. */}
             <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 flex-wrap">
               <span>Quick Sample:</span>
               <button
@@ -209,7 +217,7 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setTranscriptInput("We might move the launch to November, but I'm not sure yet.")}
+                onClick={() => setTranscriptInput("We might move the design review to next month, but I'm not sure yet.")}
                 className="text-redline-red hover:underline font-bold bg-red-50 px-2.5 py-1 rounded border border-red-200"
               >
                 RULE 5 &middot; &quot;We might move... not sure yet...&quot;

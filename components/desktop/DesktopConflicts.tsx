@@ -7,6 +7,11 @@ interface DesktopConflictsProps {
   conflicts: Conflict[];
   evidenceList: Evidence[];
   onOpenCalendar: () => void;
+  /** The conflict the caller most recently surfaced (e.g. just produced by
+   * a paste/recording extraction) -- shown in preference to `conflicts[0]`
+   * so a freshly-triggered Rule 3/4/5 conflict doesn't get hidden behind
+   * an older, still-open Rule 1 conflict that happens to sort first. */
+  selectedConflict?: Conflict | null;
 }
 
 // Maps every rule the conflict engine (lib/conflict-engine.ts) can actually
@@ -17,6 +22,7 @@ const RULE_LABELS: Record<string, string> = {
   RULE_1_DEPENDENCY: "RULE 1 • DEPENDENCY CONFLICT",
   RULE_3_ASSIGNMENT: "RULE 3 • OWNERSHIP CONFLICT",
   RULE_4_DEADLINE: "RULE 4 • DEADLINE CONFLICT",
+  RULE_5_UNCERTAINTY: "RULE 5 • UNCERTAINTY FLAG",
 };
 
 function formatConfidence(confidence?: number): string {
@@ -28,8 +34,13 @@ export const DesktopConflicts: React.FC<DesktopConflictsProps> = ({
   conflicts,
   evidenceList,
   onOpenCalendar,
+  selectedConflict,
 }) => {
-  const activeConflict = conflicts.length > 0 ? conflicts[0] : null;
+  // Prefer the caller's selection, but only if it's still a live conflict
+  // (not resolved/dismissed since it was selected) -- otherwise fall back
+  // to the first open one, same as before this prop existed.
+  const selectedStillOpen = selectedConflict && conflicts.some((c) => c.id === selectedConflict.id);
+  const activeConflict = selectedStillOpen ? selectedConflict! : conflicts.length > 0 ? conflicts[0] : null;
 
   if (!activeConflict) {
     return (

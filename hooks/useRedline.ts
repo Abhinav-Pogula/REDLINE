@@ -69,15 +69,36 @@ export function useRedline() {
     engineResult.conflicts.length > 0 ? engineResult.conflicts[0] : null
   );
 
-  // Re-run conflict engine whenever decisions, constraints, commitments or evidence change
+  // Re-run conflict engine whenever decisions, constraints, commitments or evidence change.
+  //
+  // Bug this fixes: `extractTranscript` explicitly selects the conflict IT
+  // just produced (`setSelectedConflict(newConflict)`) so the Conflict
+  // Prover shows the thing you just triggered, not whatever happens to be
+  // first in the array. But that call and the setDecisions/setConstraints/
+  // setCommitments/setEvidenceList calls right before it land in the same
+  // React batch, which is exactly what re-runs THIS effect -- and this
+  // effect used to unconditionally reset selectedConflict to conflicts[0]
+  // on every recompute, silently clobbering that explicit selection one
+  // render later. In practice: the seeded hero scenario always has an open
+  // RULE_1_DEPENDENCY conflict sitting at conflicts[0], so extracting a
+  // brand-new Rule 3 (ownership) or Rule 5 (uncertainty) sample always got
+  // immediately overwritten back to the old Rule 1 conflict -- the demo
+  // buttons and the engine both worked, but the Conflict Prover only ever
+  // displayed Rule 1, regardless of which rule you'd actually just fired.
+  //
+  // Fix: only fall back to conflicts[0] when there's no still-open selection
+  // to preserve (nothing selected yet, or the previously selected conflict
+  // is gone -- resolved, dismissed, or from a scenario reset).
   useEffect(() => {
     const result = evaluateProjectMemory(decisions, constraints, commitments, evidenceList);
     setEngineResult(result);
-    if (result.conflicts.length > 0) {
-      setSelectedConflict(result.conflicts[0]);
-    } else {
-      setSelectedConflict(null);
-    }
+    setSelectedConflict((prev) => {
+      if (prev) {
+        const stillOpen = result.conflicts.find((c) => c.id === prev.id);
+        if (stillOpen) return stillOpen;
+      }
+      return result.conflicts.length > 0 ? result.conflicts[0] : null;
+    });
   }, [decisions, constraints, commitments, evidenceList]);
 
   const showToast = useCallback((msg: string, durationMs = 3000) => {
