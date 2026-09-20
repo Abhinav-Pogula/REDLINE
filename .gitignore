@@ -30,10 +30,18 @@ yarn-error.log*
 # vercel
 .vercel
 
+# netlify
+.netlify
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
+# python virtual envs (should never end up in this repo, but just in case)
+.venv/
+venv/
+__pycache__/
+*.pyc
 
 /data
 *.db
