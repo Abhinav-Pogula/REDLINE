@@ -11,26 +11,14 @@
 // the same interface without any caller needing to change.
 // ============================================================================
 
-import { Decision, Constraint, Commitment, ExtractionContext, ExtractionProvider, ExtractionResult, ExtractedStatement, TranscriptionProvider } from "./types";
+import { Decision, Constraint, Commitment, ExtractionContext, ExtractionProvider, ExtractionResult, ExtractedStatement } from "./types";
 import { parseFlexibleDate, extractLeadTimeDays, toShortLabel, toLongLabel } from "./date-utils";
 
-/**
- * Transparent Demo Adapter for Speech-to-Text.
- * Placeholder for the real Android dual-stream capture pipeline (Section 6
- * of the PRD) — kept so callers can already code against a stable interface.
- */
-export class DemoTranscriptionProvider implements TranscriptionProvider {
-  async isAvailable(): Promise<boolean> {
-    return true;
-  }
-
-  async transcribeAudio(_stream: MediaStream | Blob): Promise<{ text: string; confidence: number }> {
-    return {
-      text: "Let's move the launch to September 28.",
-      confidence: 0.994,
-    };
-  }
-}
+// Speech-to-text (TranscriptionProvider) now lives in lib/asr.ts --
+// WhisperTranscriptionProvider runs real on-device transcription via
+// WebAssembly instead of the hardcoded single-sentence stub this file used
+// to export. This file stays focused on turning transcript TEXT (whether
+// pasted or transcribed from real audio) into structured facts.
 
 // ----------------------------------------------------------------------------
 // Statement splitting
