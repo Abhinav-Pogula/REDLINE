@@ -190,7 +190,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             onClick={() =>
               onShowModal(
                 "About REDLINE",
-                "REDLINE Sovereign Work Memory OS v2.4.1\nEngine: On-Device Neural Prover\nTarget: Defense-Grade Conflict Forensics."
+                "REDLINE Sovereign Work Memory OS v2.4.1\nEngine: On-Device Deterministic Rule Prover\nTarget: Defense-Grade Conflict Forensics."
               )
             }
             className="flex items-center justify-between px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg cursor-pointer transition-colors"

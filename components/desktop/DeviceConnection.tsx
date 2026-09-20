@@ -35,7 +35,7 @@ export const DeviceConnection: React.FC = () => {
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-neutral-950 font-display">iQOO 13 Pro (Alex Rivera)</h2>
                 <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold">
-                  PRIMARY AI DEVICE
+                  PRIMARY ENGINE DEVICE
                 </span>
               </div>
               <p className="text-xs text-neutral-500 font-mono mt-0.5">

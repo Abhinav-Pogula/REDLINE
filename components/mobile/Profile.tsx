@@ -16,7 +16,7 @@ export const Profile: React.FC<ProfileProps> = ({ onShowAlert }) => {
     const nextState = !enclaveActive;
     setEnclaveActive(nextState);
     if (nextState) {
-      onShowAlert("Enclave Isolation", "FULL ZERO-INGRESS LOCKED. Local neural inference active.");
+      onShowAlert("Enclave Isolation", "FULL ZERO-INGRESS LOCKED. Local rule-based extraction active.");
     } else {
       onShowAlert("Enclave Isolation", "Relaxed mode activated for developer testing.");
     }
@@ -69,7 +69,7 @@ export const Profile: React.FC<ProfileProps> = ({ onShowAlert }) => {
             <span className="text-xs font-semibold text-neutral-900 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-brand-red"></span> Enclave Isolation
             </span>
-            <span className="text-[10px] font-mono text-neutral-500">Local neural inference active</span>
+            <span className="text-[10px] font-mono text-neutral-500">Local rule-based extraction active</span>
           </div>
           <button
             id="enclaveToggleBtn"
@@ -176,7 +176,7 @@ export const Profile: React.FC<ProfileProps> = ({ onShowAlert }) => {
           onClick={() =>
             onShowAlert(
               "About REDLINE",
-              "REDLINE Sovereign Work Memory OS v2.4.1\nEngine: On-Device Neural Prover\nTarget: Defense-Grade Conflict Forensics."
+              "REDLINE Sovereign Work Memory OS v2.4.1\nEngine: On-Device Deterministic Rule Prover\nTarget: Defense-Grade Conflict Forensics."
             )
           }
           className="p-3.5 flex items-center justify-between hover:bg-neutral-50 cursor-pointer transition"

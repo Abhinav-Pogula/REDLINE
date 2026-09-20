@@ -23,7 +23,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "REDLINE // Sovereign Forensic Intelligence OS",
-  description: "Private, on-device AI work memory. Listens to meetings, remembers decisions and constraints, and flags contradictions with proof.",
+  description: "Private, on-device work memory. Deterministic rule-based extraction remembers decisions and constraints from your meetings and flags contradictions with proof -- fully offline, no network call.",
 };
 
 export default function RootLayout({
