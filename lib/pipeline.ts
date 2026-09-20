@@ -137,6 +137,24 @@ function matchesAny(patterns: RegExp[], text: string): boolean {
   return patterns.some((p) => p.test(text));
 }
 
+// Hedge language that signals the speaker themselves isn't committed yet
+// ("we might", "not sure", "probably") -- a statement can still read as a
+// decision structurally while carrying low real confidence. Statements that
+// match this get a reduced confidence score, which the memory-engine uses to
+// mark the resulting Decision "uncertain" instead of "confirmed" (RULE_5
+// in lib/conflict-engine.ts surfaces these for human review).
+const HEDGE_PATTERNS: RegExp[] = [
+  /\bmaybe\b/i,
+  /\bperhaps\b/i,
+  /\bpossibly\b/i,
+  /\bnot (?:totally |entirely |fully |completely )?sure\b/i,
+  /\bi think\b/i,
+  /\bmight\b/i,
+  /\bprobably\b/i,
+  /\btentative(?:ly)?\b/i,
+  /\bunconfirmed\b/i,
+];
+
 type Kind = ExtractedStatement["kind"];
 
 function classify(statement: string): { kind: Kind; confidence: number } {
@@ -149,7 +167,8 @@ function classify(statement: string): { kind: Kind; confidence: number } {
     return { kind: "constraint", confidence: 0.9 };
   }
   if (matchesAny(DECISION_PATTERNS, statement)) {
-    return { kind: "decision", confidence: 0.85 };
+    const hedged = matchesAny(HEDGE_PATTERNS, statement);
+    return { kind: "decision", confidence: hedged ? 0.55 : 0.85 };
   }
   return { kind: "unclassified", confidence: 0 };
 }

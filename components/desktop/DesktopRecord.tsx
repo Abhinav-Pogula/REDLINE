@@ -145,15 +145,33 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-mono text-neutral-500">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 flex-wrap">
               <span>Quick Sample:</span>
               <button
                 type="button"
                 onClick={() => setTranscriptInput("Let's move the launch to October 10th because security review is still pending.")}
                 className="text-redline-red hover:underline font-bold bg-red-50 px-2.5 py-1 rounded border border-red-200"
               >
-                &quot;Let&apos;s move the launch to October 10th...&quot;
+                RULE 1 &middot; &quot;...launch to October 10th...&quot;
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setTranscriptInput(
+                    "Priya, can you take the API integration? Let's say Friday.\nRahul, can you take the API integration? Let's say Monday."
+                  )
+                }
+                className="text-redline-red hover:underline font-bold bg-red-50 px-2.5 py-1 rounded border border-red-200"
+              >
+                RULE 3 &middot; &quot;Priya... Rahul... API integration...&quot;
+              </button>
+              <button
+                type="button"
+                onClick={() => setTranscriptInput("We might move the launch to November, but I'm not sure yet.")}
+                className="text-redline-red hover:underline font-bold bg-red-50 px-2.5 py-1 rounded border border-red-200"
+              >
+                RULE 5 &middot; &quot;We might move... not sure yet...&quot;
               </button>
             </div>
 

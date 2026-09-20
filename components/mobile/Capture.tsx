@@ -113,15 +113,38 @@ export const Capture: React.FC<CaptureProps> = ({
             className="w-full p-3 border border-neutral-300 rounded-xl text-xs font-mono focus:outline-none focus:border-brand-red bg-neutral-50 text-neutral-900 resize-none"
           />
 
-          {/* Quick sample shortcut */}
-          <div className="space-y-1">
+          {/* Quick sample shortcuts -- one per conflict rule, so every rule in
+              the engine (lib/conflict-engine.ts) has a one-click path to
+              actually fire on screen instead of only existing internally. */}
+          <div className="space-y-1.5">
             <span className="text-[10px] font-mono text-neutral-400">QUICK SAMPLE:</span>
             <button
               type="button"
               onClick={() => setTranscriptInput("Let's move the launch to October 10th because security review is still pending.")}
               className="block text-left text-[11px] font-mono text-brand-red hover:underline bg-red-50 p-2 rounded-lg border border-red-100 w-full"
             >
+              <span className="text-neutral-400 mr-1">[RULE 1 · DEPENDENCY]</span>
               &quot;Let&apos;s move the launch to October 10th because security review is still pending.&quot;
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setTranscriptInput(
+                  "Priya, can you take the API integration? Let's say Friday.\nRahul, can you take the API integration? Let's say Monday."
+                )
+              }
+              className="block text-left text-[11px] font-mono text-brand-red hover:underline bg-red-50 p-2 rounded-lg border border-red-100 w-full"
+            >
+              <span className="text-neutral-400 mr-1">[RULE 3 · OWNERSHIP]</span>
+              &quot;Priya, can you take the API integration?... Rahul, can you take the API integration?...&quot;
+            </button>
+            <button
+              type="button"
+              onClick={() => setTranscriptInput("We might move the launch to November, but I'm not sure yet.")}
+              className="block text-left text-[11px] font-mono text-brand-red hover:underline bg-red-50 p-2 rounded-lg border border-red-100 w-full"
+            >
+              <span className="text-neutral-400 mr-1">[RULE 5 · UNCERTAINTY]</span>
+              &quot;We might move the launch to November, but I&apos;m not sure yet.&quot;
             </button>
           </div>
 

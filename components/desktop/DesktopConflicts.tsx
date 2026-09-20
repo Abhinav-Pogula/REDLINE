@@ -9,6 +9,21 @@ interface DesktopConflictsProps {
   onOpenCalendar: () => void;
 }
 
+// Maps every rule the conflict engine (lib/conflict-engine.ts) can actually
+// trigger to a display label -- this used to be a hardcoded "RULE 1 •
+// DEPENDENCY CONFLICT" badge regardless of which rule fired, which was
+// wrong for an ownership (RULE_3) or deadline (RULE_4) conflict.
+const RULE_LABELS: Record<string, string> = {
+  RULE_1_DEPENDENCY: "RULE 1 • DEPENDENCY CONFLICT",
+  RULE_3_ASSIGNMENT: "RULE 3 • OWNERSHIP CONFLICT",
+  RULE_4_DEADLINE: "RULE 4 • DEADLINE CONFLICT",
+};
+
+function formatConfidence(confidence?: number): string {
+  if (confidence == null) return "N/A (not reported)";
+  return `${(confidence * 100).toFixed(1)}%`;
+}
+
 export const DesktopConflicts: React.FC<DesktopConflictsProps> = ({
   conflicts,
   evidenceList,
@@ -54,7 +69,7 @@ export const DesktopConflicts: React.FC<DesktopConflictsProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 rounded-full bg-red-100 text-redline-red font-mono text-xs font-bold">
-            RULE 1 • DEPENDENCY CONFLICT
+            {RULE_LABELS[activeConflict.ruleCode ?? ""] ?? `${activeConflict.type.toUpperCase()} CONFLICT`}
           </span>
         </div>
       </div>
@@ -93,12 +108,12 @@ export const DesktopConflicts: React.FC<DesktopConflictsProps> = ({
           </blockquote>
           <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 text-xs font-mono space-y-1">
             <div className="flex justify-between">
-              <span className="text-neutral-500">EXTRACTED TARGET:</span>
-              <span className="font-bold text-neutral-900">Launch Date = Sept 28</span>
+              <span className="text-neutral-500">RULE TRIGGERED:</span>
+              <span className="font-bold text-neutral-900">{activeConflict.ruleCode ?? activeConflict.type}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-neutral-500">CONFIDENCE:</span>
-              <span className="font-bold text-emerald-600">99.4% (Air-Gapped)</span>
+              <span className="font-bold text-emerald-600">{formatConfidence(newEvidence?.confidence)} (Air-Gapped)</span>
             </div>
           </div>
         </div>
@@ -122,12 +137,12 @@ export const DesktopConflicts: React.FC<DesktopConflictsProps> = ({
           </blockquote>
           <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 text-xs font-mono space-y-1">
             <div className="flex justify-between">
-              <span className="text-neutral-500">CONSTRAINT STATUS:</span>
-              <span className="font-bold text-redline-red">VIOLATED / INCOMPLETE</span>
+              <span className="text-neutral-500">CONFLICT STATUS:</span>
+              <span className="font-bold text-redline-red">{activeConflict.status.toUpperCase()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-neutral-500">PREREQUISITE RULE:</span>
-              <span className="font-bold text-neutral-900">2-Day Lock Before Launch</span>
+              <span className="text-neutral-500">SEVERITY:</span>
+              <span className="font-bold text-neutral-900">{(activeConflict.severity ?? "unspecified").toUpperCase()}</span>
             </div>
           </div>
         </div>

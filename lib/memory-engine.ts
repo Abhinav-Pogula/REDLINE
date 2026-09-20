@@ -104,11 +104,17 @@ export async function ingestTranscript(input: IngestInput): Promise<IngestResult
         d.topic.toLowerCase() === topic.toLowerCase() &&
         !mergedDecisions.some((o) => o.supersedesDecisionId === d.id)
     );
+    // A hedged statement ("we might...", "not sure yet...") still parses as a
+    // decision structurally, but the extraction confidence comes back low
+    // (see lib/pipeline.ts's HEDGE_PATTERNS) -- surface that as "uncertain"
+    // rather than "confirmed" so RULE_5_UNCERTAINTY in the conflict engine
+    // has something real to flag for human review.
+    const isUncertain = confidence !== undefined && confidence < 0.7;
     const decision: Decision = {
       id: `d-${nextId()}`,
       topic,
       value: rest.value ?? sourceText,
-      status: "confirmed",
+      status: isUncertain ? "uncertain" : "confirmed",
       evidenceId: ev.id,
       supersedesDecisionId: priorActive?.id,
       parsedDate: rest.parsedDate,
