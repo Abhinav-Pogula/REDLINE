@@ -63,11 +63,11 @@ export const Header: React.FC<HeaderProps> = ({
         <div
           id="backendStatusPill"
           className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-brand-border rounded-full shadow-xs"
-          title={isBackendConnected ? "Backend: Connected (SQLite)" : "Backend: Offline (local demo)"}
+          title={isBackendConnected ? "Extraction engine: on-device, always available" : "Extraction engine: unavailable"}
         >
           <span className={`w-1.5 h-1.5 rounded-full ${isBackendConnected ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`}></span>
           <span className="font-mono text-[9px] font-semibold text-neutral-600">
-            {isBackendConnected ? "Backend: Connected" : "Backend: Offline"}
+            {isBackendConnected ? "Engine: On-Device" : "Engine: Offline"}
           </span>
         </div>
         <button

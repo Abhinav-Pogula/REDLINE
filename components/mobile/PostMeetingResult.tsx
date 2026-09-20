@@ -52,27 +52,11 @@ export const PostMeetingResult: React.FC<PostMeetingResultProps> = ({
       {/* Transparency Indicator Status Line */}
       {lastExtracted ? (
         <div className="bg-white border border-neutral-200 rounded-2xl p-3 shadow-2xs font-mono text-xs">
-          {lastExtracted.source === "local" && (
-            <div className="flex items-center gap-2 text-emerald-700 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Extracted on-device</span>
-              <span className="text-[10px] text-neutral-400 font-normal ml-auto">(Local Ollama LLM)</span>
-            </div>
-          )}
-          {lastExtracted.escalated && lastExtracted.source === "cloud" && (
-            <div className="flex items-center gap-2 text-amber-700 font-bold">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>
-                Escalated to cloud model &mdash; {lastExtracted.escalationReason || "Local model fallback"}
-              </span>
-            </div>
-          )}
-          {lastExtracted.escalated && lastExtracted.source === "cloud_unavailable" && (
-            <div className="flex items-center gap-2 text-neutral-600 font-bold">
-              <span className="w-2 h-2 rounded-full bg-neutral-400" />
-              <span>Cloud escalation unavailable &mdash; extraction incomplete</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-emerald-700 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Extracted on-device</span>
+            <span className="text-[10px] text-neutral-400 font-normal ml-auto">(deterministic parser, no network call)</span>
+          </div>
         </div>
       ) : (
         /* Voiceprint Forensics Active Bar */

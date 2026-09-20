@@ -102,7 +102,7 @@ export const Capture: React.FC<CaptureProps> = ({
             </span>
           </div>
           <p className="text-xs text-neutral-600 font-sans leading-relaxed">
-            Paste unstructured meeting transcripts here. REDLINE will extract decisions, constraints, and commitments using on-device LLM intelligence.
+            Paste unstructured meeting transcripts here. REDLINE extracts decisions, constraints, and commitments instantly, entirely on-device &mdash; no network call, ever.
           </p>
           <textarea
             value={transcriptInput}
@@ -138,7 +138,7 @@ export const Capture: React.FC<CaptureProps> = ({
             {isExtracting ? (
               <>
                 <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                <span>Processing on-device...</span>
+                <span>Extracting...</span>
               </>
             ) : (
               <>
@@ -152,10 +152,10 @@ export const Capture: React.FC<CaptureProps> = ({
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center space-y-1">
               <div className="font-mono text-xs text-amber-800 font-bold flex items-center justify-center gap-2">
                 <span className="animate-spin text-sm">⚙️</span>
-                <span>Processing on-device...</span>
+                <span>Running the on-device parser...</span>
               </div>
               <p className="text-[11px] text-amber-700 font-mono">
-                Cold starts on local Ollama LLM may take 15&ndash;45+ seconds. Extraction running...
+                Deterministic, offline extraction &mdash; no model call, no network round trip.
               </p>
             </div>
           )}

@@ -127,7 +127,7 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
             </div>
             <span className="px-3 py-1 rounded bg-neutral-100 border border-neutral-200 font-mono text-xs font-bold text-neutral-700 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              ON-DEVICE LLM ACTIVE
+              ON-DEVICE PARSER ACTIVE
             </span>
           </div>
 
@@ -170,7 +170,7 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
               {isExtracting ? (
                 <>
                   <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                  <span>Processing on-device...</span>
+                  <span>Extracting...</span>
                 </>
               ) : (
                 <>
@@ -185,10 +185,10 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center space-y-1">
               <div className="font-mono text-xs text-amber-800 font-bold flex items-center justify-center gap-2">
                 <span className="animate-spin text-sm">⚙️</span>
-                <span>Processing on-device...</span>
+                <span>Running the on-device parser...</span>
               </div>
               <p className="text-xs text-amber-700 font-mono">
-                Cold starts on local Ollama LLM model may take 15&ndash;45+ seconds. Please do not close this window.
+                Deterministic, offline extraction &mdash; no model call, no network round trip.
               </p>
             </div>
           )}

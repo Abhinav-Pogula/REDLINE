@@ -92,10 +92,10 @@ export const DesktopWindowFrame: React.FC<DesktopWindowFrameProps> = ({
           <div
             id="desktopBackendStatusPill"
             className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-[10px] font-mono font-medium text-neutral-600"
-            title={isBackendConnected ? "Backend: Connected (SQLite)" : "Backend: Offline (local demo)"}
+            title={isBackendConnected ? "Extraction engine: on-device, always available" : "Extraction engine: unavailable"}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${isBackendConnected ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`}></span>
-            <span>{isBackendConnected ? "Backend: Connected" : "Backend: Offline"}</span>
+            <span>{isBackendConnected ? "Engine: On-Device" : "Engine: Offline"}</span>
           </div>
           <div
             onClick={() => setCurrentTab("devices")}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Screen, CaptureStatus } from "../lib/types";
 import { Decision, Constraint, Commitment, Conflict, Evidence, TimelineEvent } from "../lib/data";
 import { canonicalHeroScenario, compliantScenario, Scenario } from "../lib/demo";
 import { evaluateProjectMemory, EngineResult } from "../lib/conflict-engine";
-import { loadRedlineState, saveRedlineState, RedlineState } from "../lib/storage";
+import { loadRedlineState, resetToScenario } from "../lib/storage";
+import { ingestTranscript } from "../lib/memory-engine";
 
 export function useRedline() {
   // Navigation screen and capture status are strictly decoupled
@@ -27,49 +28,36 @@ export function useRedline() {
   // Toast notification state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Active scenario, backend status, and memory state
+  // Active scenario and memory state. There is no server in this build --
+  // extraction and persistence both run entirely on-device (lib/pipeline.ts
+  // + lib/memory-engine.ts, localStorage via lib/storage.ts) -- so the
+  // engine is always available, unlike the earlier SQLite/API-route build
+  // this replaces which could be "offline" if its server wasn't reachable.
   const [activeScenarioId, setActiveScenarioId] = useState<string>("scenario-conflict");
-  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
-  const [lastExtracted, setLastExtracted] = useState<any | null>(null);
+  const [lastExtracted, setLastExtracted] = useState<{
+    decisions: Decision[];
+    constraints: Constraint[];
+    commitments: Commitment[];
+  } | null>(null);
   const [decisions, setDecisions] = useState<Decision[]>([...canonicalHeroScenario.decisions]);
   const [constraints, setConstraints] = useState<Constraint[]>([...canonicalHeroScenario.constraints]);
   const [commitments, setCommitments] = useState<Commitment[]>([...canonicalHeroScenario.commitments]);
   const [evidenceList, setEvidenceList] = useState<Evidence[]>([...canonicalHeroScenario.evidence]);
 
-  // Fetch initial memory state from GET /api/dashboard with fallback to client-side scenario
-  const loadFromServer = useCallback(async () => {
-    try {
-      const res = await fetch("/api/dashboard", { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const data = await res.json();
-      if (
-        Array.isArray(data.decisions) &&
-        Array.isArray(data.constraints) &&
-        Array.isArray(data.commitments) &&
-        Array.isArray(data.evidence)
-      ) {
-        setDecisions(data.decisions);
-        setConstraints(data.constraints);
-        setCommitments(data.commitments);
-        setEvidenceList(data.evidence);
-        setIsBackendConnected(true);
-        return true;
-      }
-      throw new Error("Invalid payload format");
-    } catch (_err) {
-      setIsBackendConnected(false);
-      setDecisions([...canonicalHeroScenario.decisions]);
-      setConstraints([...canonicalHeroScenario.constraints]);
-      setCommitments([...canonicalHeroScenario.commitments]);
-      setEvidenceList([...canonicalHeroScenario.evidence]);
-      return false;
-    }
-  }, []);
-
+  // Hydrate from whatever was persisted locally (a prior paste-transcript
+  // session), falling back to the seeded hero scenario on first run.
+  const hydrated = useRef(false);
   useEffect(() => {
-    loadFromServer();
-  }, [loadFromServer]);
+    if (hydrated.current) return;
+    hydrated.current = true;
+    const persisted = loadRedlineState();
+    setDecisions(persisted.decisions);
+    setConstraints(persisted.constraints);
+    setCommitments(persisted.commitments);
+    setEvidenceList(persisted.evidence);
+    setActiveScenarioId(persisted.currentScenarioId);
+  }, []);
 
   // Evaluated conflict engine results
   const [engineResult, setEngineResult] = useState<EngineResult>(() =>
@@ -127,106 +115,78 @@ export function useRedline() {
     });
   }, []);
 
+  // Paste-transcript -> structured memory, entirely on-device (no network call).
   const extractTranscript = useCallback(
     async (transcript: string) => {
       if (!transcript || !transcript.trim()) return;
       setIsExtracting(true);
       try {
-        const beforeConflicts = [...engineResult.conflicts];
-        const res = await fetch("/api/extract", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript }),
+        const beforeConflictIds = new Set(engineResult.conflicts.map((c) => c.id));
+
+        const result = await ingestTranscript({
+          text: transcript,
+          context: { source: "manual_paste" },
+          currentDecisions: decisions,
+          currentConstraints: constraints,
+          currentCommitments: commitments,
+          currentEvidence: evidenceList,
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: Failed to extract transcript.`);
-        }
+        setDecisions(result.mergedDecisions);
+        setConstraints(result.mergedConstraints);
+        setCommitments(result.mergedCommitments);
+        setEvidenceList(result.mergedEvidence);
+        setEngineResult(result.engineResult);
+        setLastExtracted({
+          decisions: result.newDecisions,
+          constraints: result.newConstraints,
+          commitments: result.newCommitments,
+        });
 
-        const data = await res.json();
-        setLastExtracted(data.extracted);
+        const newConflict = result.engineResult.conflicts.find(
+          (c) => !beforeConflictIds.has(c.id)
+        );
 
-        // Fetch fresh server state from GET /api/dashboard
-        const dashRes = await fetch("/api/dashboard", { cache: "no-store" });
-        if (dashRes.ok) {
-          const dashData = await dashRes.json();
-          if (
-            Array.isArray(dashData.decisions) &&
-            Array.isArray(dashData.constraints) &&
-            Array.isArray(dashData.commitments) &&
-            Array.isArray(dashData.evidence)
-          ) {
-            setDecisions(dashData.decisions);
-            setConstraints(dashData.constraints);
-            setCommitments(dashData.commitments);
-            setEvidenceList(dashData.evidence);
-
-            const updatedEngine = evaluateProjectMemory(
-              dashData.decisions,
-              dashData.constraints,
-              dashData.commitments,
-              dashData.evidence
-            );
-            setEngineResult(updatedEngine);
-
-            // Compare conflicts before and after
-            const beforeIds = new Set(beforeConflicts.map((c) => c.id));
-            const newConflict = updatedEngine.conflicts.find(
-              (c) => c.newEvidenceId === data.evidenceId || !beforeIds.has(c.id)
-            );
-
-            if (newConflict) {
-              setSelectedConflict(newConflict);
-              setCurrentScreen("conflict");
-              showToast("New conflict identified from transcript!");
-            } else {
-              if (updatedEngine.conflicts.length > 0) {
-                setSelectedConflict(updatedEngine.conflicts[0]);
-              }
-              setCurrentScreen("result");
-              showToast("Transcript processed successfully!");
-            }
+        if (result.newDecisions.length === 0 && result.newConstraints.length === 0 && result.newCommitments.length === 0) {
+          showAlert(
+            "Nothing extracted",
+            "The parser didn't find a decision, constraint, or commitment in that text. Try a sentence like \"We'll launch on October 10\" or \"The security review must be completed before launch.\""
+          );
+          setCurrentScreen("result");
+        } else if (newConflict) {
+          setSelectedConflict(newConflict);
+          setCurrentScreen("conflict");
+          showToast("New conflict identified from transcript!");
+        } else {
+          if (result.engineResult.conflicts.length > 0) {
+            setSelectedConflict(result.engineResult.conflicts[0]);
           }
+          setCurrentScreen("result");
+          showToast("Transcript processed successfully!");
         }
       } catch (err: any) {
-        showAlert("Extraction Error", err.message || "Failed to extract transcript.");
+        showAlert("Extraction Error", err?.message || "Failed to extract transcript.");
       } finally {
         setIsExtracting(false);
       }
     },
-    [engineResult.conflicts, showAlert, showToast]
+    [decisions, constraints, commitments, evidenceList, engineResult.conflicts, showAlert, showToast]
   );
 
   // Reset to specified scenario (Hero Contradiction vs Verified Compliant)
   const loadScenario = useCallback(
-    async (scenarioId: "scenario-conflict" | "scenario-compliant") => {
+    (scenarioId: "scenario-conflict" | "scenario-compliant") => {
       setLastExtracted(null);
-      const scenario = scenarioId === "scenario-compliant" ? compliantScenario : canonicalHeroScenario;
-      setActiveScenarioId(scenario.id);
+      const state = resetToScenario(scenarioId);
+      setActiveScenarioId(state.currentScenarioId);
+      setDecisions(state.decisions);
+      setConstraints(state.constraints);
+      setCommitments(state.commitments);
+      setEvidenceList(state.evidence);
+      setEngineResult(state.engineResult);
       setCurrentScreen("dashboard");
       setCaptureStatus("idle");
       setPipelineStep(0);
-
-      let backendSuccess = false;
-      try {
-        const res = await fetch("/api/demo/reset", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scenarioId }),
-        });
-        if (res.ok) {
-          backendSuccess = await loadFromServer();
-        }
-      } catch (_err) {
-        // Ignore network errors and rely on local state fallback below
-      }
-
-      if (!backendSuccess) {
-        setDecisions([...scenario.decisions]);
-        setConstraints([...scenario.constraints]);
-        setCommitments([...scenario.commitments]);
-        setEvidenceList([...scenario.evidence]);
-      }
 
       showToast(
         scenarioId === "scenario-compliant"
@@ -234,10 +194,12 @@ export function useRedline() {
           : "Reset to Hero Demo Scenario: Contradiction active."
       );
     },
-    [loadFromServer, showToast]
+    [showToast]
   );
 
-  // HERO JUDGE DEMO MODE AUTOMATION
+  // HERO JUDGE DEMO MODE AUTOMATION -- scripted replay, zero dependency on
+  // the extraction engine or any network access (PRD Section 10's
+  // guaranteed-to-work fallback).
   const runHeroDemo = useCallback(() => {
     setLastExtracted(null);
     // 1. Reset to hero scenario with contradiction
@@ -291,11 +253,11 @@ export function useRedline() {
     toastMessage,
     showToast,
     activeScenarioId,
-    isBackendConnected,
+    // Always true: extraction/persistence are on-device, there's no server to lose connection to.
+    isBackendConnected: true,
     isExtracting,
     lastExtracted,
     extractTranscript,
-    loadFromServer,
     loadScenario,
     runHeroDemo,
     decisions,
