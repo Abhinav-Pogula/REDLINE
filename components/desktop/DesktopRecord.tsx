@@ -5,12 +5,18 @@ import React, { useState, useEffect } from "react";
 interface DesktopRecordProps {
   onStopAndCompile: () => void;
   onOpenConflict: () => void;
+  onExtractTranscript?: (transcript: string) => Promise<void>;
+  isExtracting?: boolean;
 }
 
 export const DesktopRecord: React.FC<DesktopRecordProps> = ({
   onStopAndCompile,
   onOpenConflict,
+  onExtractTranscript,
+  isExtracting = false,
 }) => {
+  const [intakeMode, setIntakeMode] = useState<"audio" | "paste">("paste");
+  const [transcriptInput, setTranscriptInput] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(true);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [seconds, setSeconds] = useState<number>(260); // 00:04:20
@@ -51,6 +57,11 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
     }
   };
 
+  const handlePasteSubmit = async () => {
+    if (!transcriptInput.trim() || !onExtractTranscript) return;
+    await onExtractTranscript(transcriptInput);
+  };
+
   return (
     <div className="flex flex-col p-8 gap-6 max-w-7xl mx-auto w-full" id="view-desktop-record">
       {/* Header Bar */}
@@ -60,17 +71,38 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
             <span className="w-2 h-2 rounded-full bg-redline-red animate-ping"></span>
             <span>FORENSIC OPERATING CONSOLE</span>
             <span>•</span>
-            <span>RAW ACOUSTIC INTAKE</span>
+            <span>STRUCTURED MEMORY INTAKE</span>
           </div>
           <h1 className="text-2xl lg:text-3xl font-extrabold text-neutral-950 tracking-tight font-display">
-            On-Device Acoustic Intake &amp; Synthesis
+            On-Device Memory Intake &amp; Extraction
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-300 bg-white shadow-xs font-mono text-xs text-neutral-700">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>STATE A // LIVE 48kHz RAW PCM</span>
+          <div className="flex items-center bg-neutral-100 p-1 rounded-xl border border-neutral-300">
+            <button
+              type="button"
+              onClick={() => setIntakeMode("audio")}
+              className={`px-3 py-1.5 font-mono text-xs font-bold rounded-lg transition ${
+                intakeMode === "audio"
+                  ? "bg-white text-neutral-900 shadow-2xs border border-neutral-200"
+                  : "text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              🎙️ Live Audio
+            </button>
+            <button
+              type="button"
+              onClick={() => setIntakeMode("paste")}
+              className={`px-3 py-1.5 font-mono text-xs font-bold rounded-lg transition ${
+                intakeMode === "paste"
+                  ? "bg-redline-red text-white shadow-2xs"
+                  : "text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              📝 Paste Transcript
+            </button>
           </div>
+
           <button
             onClick={onOpenConflict}
             className="flex items-center gap-2 border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg font-mono text-xs font-bold transition-colors"
@@ -81,7 +113,88 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
         </div>
       </div>
 
-      {/* Main Console & Sidebar Grid */}
+      {intakeMode === "paste" ? (
+        /* DESKTOP PASTE TRANSCRIPT FORM */
+        <div className="bg-white rounded-xl border border-neutral-200 p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">
+                PASTE TRANSCRIPT FALLBACK PATH (P0 REQUIREMENT)
+              </span>
+              <span className="text-base font-mono font-bold text-neutral-900">
+                Unstructured Transcript &rarr; Forensic Memory Extractor
+              </span>
+            </div>
+            <span className="px-3 py-1 rounded bg-neutral-100 border border-neutral-200 font-mono text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              ON-DEVICE LLM ACTIVE
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-xs font-mono font-bold text-neutral-700 uppercase">
+              Meeting Transcript Content:
+            </label>
+            <textarea
+              value={transcriptInput}
+              onChange={(e) => setTranscriptInput(e.target.value)}
+              placeholder="Paste meeting transcript text here...&#10;e.g. 'Let\'s move the launch to October 10th because security review is still pending.'"
+              rows={7}
+              disabled={isExtracting}
+              className="w-full p-4 border border-neutral-300 rounded-xl text-xs font-mono focus:outline-none focus:border-redline-red bg-neutral-50 text-neutral-900 resize-none leading-relaxed"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-mono text-neutral-500">
+              <span>Quick Sample:</span>
+              <button
+                type="button"
+                onClick={() => setTranscriptInput("Let's move the launch to October 10th because security review is still pending.")}
+                className="text-redline-red hover:underline font-bold bg-red-50 px-2.5 py-1 rounded border border-red-200"
+              >
+                &quot;Let&apos;s move the launch to October 10th...&quot;
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handlePasteSubmit}
+              disabled={isExtracting || !transcriptInput.trim()}
+              className={`px-8 py-3.5 rounded-xl font-mono text-xs font-bold tracking-wider uppercase shadow-md flex items-center gap-2 transition ${
+                isExtracting || !transcriptInput.trim()
+                  ? "bg-neutral-300 text-neutral-500 cursor-not-allowed"
+                  : "bg-redline-red hover:bg-redline-redHover text-white active:scale-95"
+              }`}
+            >
+              {isExtracting ? (
+                <>
+                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                  <span>Processing on-device...</span>
+                </>
+              ) : (
+                <>
+                  <span>⚡</span>
+                  <span>Extract Structured Memory</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {isExtracting && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center space-y-1">
+              <div className="font-mono text-xs text-amber-800 font-bold flex items-center justify-center gap-2">
+                <span className="animate-spin text-sm">⚙️</span>
+                <span>Processing on-device...</span>
+              </div>
+              <p className="text-xs text-amber-700 font-mono">
+                Cold starts on local Ollama LLM model may take 15&ndash;45+ seconds. Please do not close this window.
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Main Console & Sidebar Grid for Audio Intake */
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left 8 Cols: Live Acoustic Console */}
         <div className="lg:col-span-8 bg-white rounded-xl border border-neutral-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
@@ -259,6 +372,7 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

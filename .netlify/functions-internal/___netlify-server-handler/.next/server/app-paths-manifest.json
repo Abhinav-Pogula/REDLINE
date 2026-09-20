@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/conflicts/page": "app/conflicts/page.js",
+  "/decisions/[id]/page": "app/decisions/[id]/page.js",
+  "/conflicts/[id]/page": "app/conflicts/[id]/page.js",
+  "/evidence/page": "app/evidence/page.js",
+  "/meetings/[id]/page": "app/meetings/[id]/page.js",
+  "/decisions/page": "app/decisions/page.js",
+  "/demo/page": "app/demo/page.js",
+  "/page": "app/page.js",
+  "/evidence/[id]/page": "app/evidence/[id]/page.js",
+  "/record/page": "app/record/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/commitments/page": "app/commitments/page.js"
+}

@@ -8,6 +8,7 @@ interface HeaderProps {
   onOpenDrawer: () => void;
   onGoBack: () => void;
   onNavigate: (screen: Screen) => void;
+  isBackendConnected?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDrawer,
   onGoBack,
   onNavigate,
+  isBackendConnected = false,
 }) => {
   const isDashboard = currentScreen === "dashboard";
 
@@ -56,14 +58,17 @@ export const Header: React.FC<HeaderProps> = ({
         </p>
       </div>
 
-      {/* Top-Right Action: Enclave Status & Profile */}
+      {/* Top-Right Action: Backend Status & Profile */}
       <div className="flex items-center gap-2">
         <div
-          id="enclavePill"
-          className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 bg-white border border-brand-border rounded-full shadow-xs"
+          id="backendStatusPill"
+          className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-brand-border rounded-full shadow-xs"
+          title={isBackendConnected ? "Backend: Connected (SQLite)" : "Backend: Offline (local demo)"}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-red animate-ping"></span>
-          <span className="font-mono text-[9px] font-semibold text-neutral-600">SECURE</span>
+          <span className={`w-1.5 h-1.5 rounded-full ${isBackendConnected ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`}></span>
+          <span className="font-mono text-[9px] font-semibold text-neutral-600">
+            {isBackendConnected ? "Backend: Connected" : "Backend: Offline"}
+          </span>
         </div>
         <button
           onClick={() => onNavigate("profile")}

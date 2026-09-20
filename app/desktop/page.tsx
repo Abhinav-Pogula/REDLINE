@@ -31,6 +31,9 @@ export default function DesktopPage() {
         commitments={redline.commitments}
         evidenceList={redline.evidenceList}
         initialTab="dashboard"
+        isBackendConnected={redline.isBackendConnected}
+        onExtractTranscript={redline.extractTranscript}
+        isExtracting={redline.isExtracting}
       />
     </div>
   );

@@ -49,6 +49,9 @@ export default function Home() {
           commitments={redline.commitments}
           evidenceList={redline.evidenceList}
           initialTab={redline.selectedConflict ? "conflicts" : "dashboard"}
+          isBackendConnected={redline.isBackendConnected}
+          onExtractTranscript={redline.extractTranscript}
+          isExtracting={redline.isExtracting}
         />
       </div>
 
@@ -63,6 +66,7 @@ export default function Home() {
             onOpenDrawer={() => redline.setDrawerOpen(true)}
             onGoBack={redline.goBack}
             onNavigate={redline.navigate}
+            isBackendConnected={redline.isBackendConnected}
           />
 
           {/* Quick Breadcrumb Bar */}
@@ -89,6 +93,8 @@ export default function Home() {
                 pipelineStep={redline.pipelineStep}
                 setPipelineStep={redline.setPipelineStep}
                 onShowAlert={redline.showAlert}
+                onExtractTranscript={redline.extractTranscript}
+                isExtracting={redline.isExtracting}
               />
             )}
 
@@ -99,6 +105,7 @@ export default function Home() {
                 constraints={redline.constraints}
                 commitments={redline.commitments}
                 selectedConflict={redline.selectedConflict}
+                lastExtracted={redline.lastExtracted}
                 onShowAlert={redline.showAlert}
               />
             )}
