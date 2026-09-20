@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Screen, CaptureStatus } from "../../lib/types";
+import { Screen, CaptureStatus, ExtractOutcome } from "../../lib/types";
 
 interface CaptureProps {
   onNavigate: (screen: Screen) => void;
@@ -10,7 +10,7 @@ interface CaptureProps {
   pipelineStep?: number;
   setPipelineStep?: (step: number) => void;
   onShowAlert?: (title: string, message: string) => void;
-  onExtractTranscript?: (transcript: string) => Promise<void>;
+  onExtractTranscript?: (transcript: string) => Promise<ExtractOutcome>;
   isExtracting?: boolean;
 }
 

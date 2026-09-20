@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { ExtractOutcome } from "../../lib/types";
 
 interface DesktopRecordProps {
   onStopAndCompile: () => void;
   onOpenConflict: () => void;
-  onExtractTranscript?: (transcript: string) => Promise<void>;
+  onExtractTranscript?: (transcript: string) => Promise<ExtractOutcome>;
   isExtracting?: boolean;
 }
 
@@ -17,6 +18,12 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
 }) => {
   const [intakeMode, setIntakeMode] = useState<"audio" | "paste">("paste");
   const [transcriptInput, setTranscriptInput] = useState<string>("");
+  // Desktop has no equivalent of the mobile app's shared `currentScreen` /
+  // toast / alert wiring (DesktopWindowFrame keeps its own separate tab
+  // state), so a paste that only superseded a decision, or found nothing,
+  // previously vanished with zero feedback. This renders that outcome
+  // inline instead of silently dropping it.
+  const [lastOutcome, setLastOutcome] = useState<ExtractOutcome | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(true);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [seconds, setSeconds] = useState<number>(260); // 00:04:20
@@ -59,7 +66,18 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
 
   const handlePasteSubmit = async () => {
     if (!transcriptInput.trim() || !onExtractTranscript) return;
-    await onExtractTranscript(transcriptInput);
+    const outcome = await onExtractTranscript(transcriptInput);
+    setLastOutcome(outcome);
+    // Only jump to the Conflict Prover when THIS paste actually produced a
+    // new conflict -- previously nothing here navigated at all, so testers
+    // had to click into the Conflicts tab manually and would see whatever
+    // conflict was already sitting in state (e.g. the seeded hero scenario)
+    // and mistake it for a result of the transcript they just pasted.
+    if (outcome.status === "new_conflict") {
+      onOpenConflict();
+    } else if (outcome.status === "ok" || outcome.status === "superseded") {
+      setTranscriptInput("");
+    }
   };
 
   return (
@@ -208,6 +226,37 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
               <p className="text-xs text-amber-700 font-mono">
                 Deterministic, offline extraction &mdash; no model call, no network round trip.
               </p>
+            </div>
+          )}
+
+          {/* Inline extraction outcome -- this is the only feedback surface
+              on desktop for a paste that didn't produce a brand-new
+              conflict (e.g. a superseded decision, or nothing extracted).
+              Without it these outcomes were completely silent here. */}
+          {!isExtracting && lastOutcome && (
+            <div
+              className={`rounded-xl p-4 border text-xs font-mono space-y-1 ${
+                lastOutcome.status === "error"
+                  ? "bg-red-50 border-red-200 text-red-800"
+                  : lastOutcome.status === "empty"
+                  ? "bg-neutral-100 border-neutral-200 text-neutral-700"
+                  : lastOutcome.status === "superseded"
+                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                  : "bg-emerald-50 border-emerald-200 text-emerald-800"
+              }`}
+            >
+              <div className="font-bold uppercase tracking-wide flex items-center gap-1.5">
+                <span>
+                  {lastOutcome.status === "error"
+                    ? "⚠ Extraction Error"
+                    : lastOutcome.status === "empty"
+                    ? "Nothing Extracted"
+                    : lastOutcome.status === "superseded"
+                    ? "Decision Updated"
+                    : "Extraction Complete"}
+                </span>
+              </div>
+              <p className="leading-relaxed">{lastOutcome.message}</p>
             </div>
           )}
         </div>

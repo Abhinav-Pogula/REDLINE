@@ -189,6 +189,7 @@ const TOPIC_VOCAB: { match: RegExp; topic: string }[] = [
   { match: /\bbudget\b/i, topic: "Budget" },
   { match: /\bscope\b/i, topic: "Scope" },
   { match: /\bdeployment\b|\bdeploy\b/i, topic: "Deployment" },
+  { match: /\bdatabase\b|\bdb\b/i, topic: "Database" },
   { match: /\bmigration\b/i, topic: "Migration" },
   { match: /\bdesign review\b/i, topic: "Design review" },
   { match: /\bcode freeze\b|\bfreeze window\b/i, topic: "Code freeze" },

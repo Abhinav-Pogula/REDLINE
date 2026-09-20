@@ -215,6 +215,20 @@ export interface MemoryStore {
 // the full extraction -> merge -> conflict-detection pipeline in one call.
 // ============================================================================
 
+// ============================================================================
+// Result handed back from a paste-transcript submission (hooks/useRedline.ts
+// extractTranscript) so each surface (mobile auto-navigates + toasts; desktop
+// has no shared navigation state with the mobile Screen type, so it needs
+// this to know what actually happened and render its own feedback) can react
+// without silently dropping what the extraction produced.
+// ============================================================================
+export type ExtractOutcomeStatus = "empty" | "new_conflict" | "superseded" | "ok" | "error";
+
+export interface ExtractOutcome {
+  status: ExtractOutcomeStatus;
+  message: string;
+}
+
 export interface IngestResult {
   newEvidence: Evidence[];
   newDecisions: Decision[];

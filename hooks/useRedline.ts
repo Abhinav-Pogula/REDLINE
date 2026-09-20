@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Screen, CaptureStatus } from "../lib/types";
+import { Screen, CaptureStatus, ExtractOutcome } from "../lib/types";
 import { Decision, Constraint, Commitment, Conflict, Evidence, TimelineEvent } from "../lib/data";
 import { canonicalHeroScenario, compliantScenario, Scenario } from "../lib/demo";
 import { evaluateProjectMemory, EngineResult } from "../lib/conflict-engine";
@@ -116,9 +116,20 @@ export function useRedline() {
   }, []);
 
   // Paste-transcript -> structured memory, entirely on-device (no network call).
+  //
+  // Returns an ExtractOutcome (not just void) because the desktop shell
+  // (components/desktop/DesktopWindowFrame.tsx) keeps its own tab state
+  // completely separate from `currentScreen` here -- that state only drives
+  // the mobile view in app/page.tsx. Without a return value, a paste on
+  // desktop that superseded a decision or hit an existing (but not new)
+  // conflict had zero visible feedback: no navigation, no toast, no alert,
+  // since none of those are wired into the desktop tree. Desktop callers use
+  // this return value to render their own inline feedback instead.
   const extractTranscript = useCallback(
-    async (transcript: string) => {
-      if (!transcript || !transcript.trim()) return;
+    async (transcript: string): Promise<ExtractOutcome> => {
+      if (!transcript || !transcript.trim()) {
+        return { status: "empty", message: "Paste a transcript first." };
+      }
       setIsExtracting(true);
       try {
         const beforeConflictIds = new Set(engineResult.conflicts.map((c) => c.id));
@@ -147,25 +158,61 @@ export function useRedline() {
           (c) => !beforeConflictIds.has(c.id)
         );
 
+        // A decision that superseded a prior one on the same topic doesn't
+        // register as a "conflict" (Rule 2 just tracks it), so without this
+        // it merges into memory completely silently -- pasting "we switched
+        // to MongoDB instead of Postgres" gave no on-screen confirmation
+        // that REDLINE even noticed the earlier Postgres decision existed.
+        // Look the prior decision up in `mergedDecisions` (old state + every
+        // decision this same paste produced), not just the pre-paste state
+        // -- a single transcript can contain both the original decision and
+        // the one that supersedes it (as in that exact Postgres/MongoDB
+        // example), and the "prior" one only exists in `newDecisions` then.
+        const supersededPairs = result.newDecisions
+          .filter((d) => d.supersedesDecisionId)
+          .map((d) => {
+            const prior = result.mergedDecisions.find((p) => p.id === d.supersedesDecisionId);
+            return prior ? `${d.topic}: "${prior.value}" → "${d.value}"` : null;
+          })
+          .filter((s): s is string => Boolean(s));
+
         if (result.newDecisions.length === 0 && result.newConstraints.length === 0 && result.newCommitments.length === 0) {
-          showAlert(
-            "Nothing extracted",
-            "The parser didn't find a decision, constraint, or commitment in that text. Try a sentence like \"We'll launch on October 10\" or \"The security review must be completed before launch.\""
-          );
+          const message =
+            "The parser didn't find a decision, constraint, or commitment in that text. Try a sentence like \"We'll launch on October 10\" or \"The security review must be completed before launch.\"";
+          showAlert("Nothing extracted", message);
           setCurrentScreen("result");
-        } else if (newConflict) {
+          return { status: "empty", message };
+        }
+
+        if (newConflict) {
           setSelectedConflict(newConflict);
           setCurrentScreen("conflict");
-          showToast("New conflict identified from transcript!");
-        } else {
-          if (result.engineResult.conflicts.length > 0) {
-            setSelectedConflict(result.engineResult.conflicts[0]);
-          }
-          setCurrentScreen("result");
-          showToast("Transcript processed successfully!");
+          const message =
+            supersededPairs.length > 0
+              ? `New conflict identified! Also updated: ${supersededPairs.join("; ")}`
+              : "New conflict identified from transcript!";
+          showToast(message);
+          return { status: "new_conflict", message };
         }
+
+        if (result.engineResult.conflicts.length > 0) {
+          setSelectedConflict(result.engineResult.conflicts[0]);
+        }
+        setCurrentScreen("result");
+
+        if (supersededPairs.length > 0) {
+          const message = `Decision updated: ${supersededPairs.join("; ")}`;
+          showToast(message);
+          return { status: "superseded", message };
+        }
+
+        const message = "Transcript processed successfully!";
+        showToast(message);
+        return { status: "ok", message };
       } catch (err: any) {
-        showAlert("Extraction Error", err?.message || "Failed to extract transcript.");
+        const message = err?.message || "Failed to extract transcript.";
+        showAlert("Extraction Error", message);
+        return { status: "error", message };
       } finally {
         setIsExtracting(false);
       }

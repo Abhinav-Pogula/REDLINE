@@ -9,6 +9,7 @@ import { DesktopCalendar } from "./DesktopCalendar";
 import { DesktopRecord } from "./DesktopRecord";
 import { DesktopTimeline } from "./DesktopTimeline";
 import { Conflict, Decision, Constraint, Commitment, Evidence } from "../../lib/data";
+import { ExtractOutcome } from "../../lib/types";
 
 interface DesktopWindowFrameProps {
   conflicts: Conflict[];
@@ -19,7 +20,7 @@ interface DesktopWindowFrameProps {
   onSwitchToMobile?: () => void;
   initialTab?: DesktopTab;
   isBackendConnected?: boolean;
-  onExtractTranscript?: (transcript: string) => Promise<void>;
+  onExtractTranscript?: (transcript: string) => Promise<ExtractOutcome>;
   isExtracting?: boolean;
 }
 
