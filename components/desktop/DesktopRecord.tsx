@@ -287,7 +287,7 @@ export const DesktopRecord: React.FC<DesktopRecordProps> = ({
                     : "Extraction Complete"}
                 </span>
               </div>
-              <p className="leading-relaxed">{lastOutcome.message}</p>
+              <p className="leading-relaxed whitespace-pre-line">{lastOutcome.message}</p>
             </div>
           )}
         </div>

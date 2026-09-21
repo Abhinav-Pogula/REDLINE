@@ -198,10 +198,24 @@ export function useRedline() {
           .filter((s): s is string => Boolean(s));
 
         if (result.newDecisions.length === 0 && result.newConstraints.length === 0 && result.newCommitments.length === 0) {
+          // Quote back exactly what was searched. Without this, "nothing
+          // extracted" is indistinguishable from "the mic/transcription
+          // didn't work" -- especially on the audio path, where (unlike
+          // Paste Transcript) the person never typed the text themselves and
+          // has no other way to see what Whisper actually heard.
+          const trimmed = transcript.trim();
+          const quoted = trimmed.length > 220 ? `${trimmed.slice(0, 220)}…` : trimmed;
           const message =
-            "The parser didn't find a decision, constraint, or commitment in that text. Try a sentence like \"We'll launch on October 10\" or \"The security review must be completed before launch.\"";
+            `Here's exactly what was searched: "${quoted}"\n\nThe parser didn't find a decision, constraint, or commitment in it. Try a sentence like \"We'll launch on October 10\" or \"The security review must be completed before launch.\"`;
           showAlert("Nothing extracted", message);
-          setCurrentScreen("result");
+          // Deliberately does NOT navigate away (unlike the other outcomes
+          // below). On mobile this screen is the only place `Capture`
+          // renders, so jumping to "result" here used to yank the user off
+          // the capture screen -- past their own "Last transcription"
+          // preview -- and onto a stale, unrelated screen the instant
+          // extraction found nothing, making a working mic look broken.
+          // Staying put mirrors how the desktop console already behaves:
+          // it never navigates on an empty outcome either.
           return { status: "empty", message };
         }
 
