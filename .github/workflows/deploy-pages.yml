@@ -1,0 +1,76 @@
+name: Deploy to GitHub Pages
+
+# REDLINE has no server-only features (no API routes, cookies, or server
+# actions -- see next.config.mjs), so it's built as a static export and
+# published straight to GitHub Pages. This is what gives the project a real,
+# stable URL for the application form / demo, with no separate hosting
+# account needed.
+on:
+  push:
+    branches: ["main"]
+  # Lets you trigger a re-deploy manually from the Actions tab without
+  # needing a new commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; don't cancel one that's already
+# publishing, just queue behind it.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      # `npm run build` runs `next build --webpack` (see package.json) --
+      # Turbopack hangs indefinitely on @xenova/transformers' dynamic
+      # import in this Next.js version, so webpack is required, not
+      # optional. `output: "export"` in next.config.mjs makes this emit a
+      # static site into ./out instead of a server build.
+      - name: Build static export
+        run: npm run build
+
+      # GitHub Pages runs the output through Jekyll by default, which
+      # ignores any path starting with an underscore -- including Next's
+      # own _next/ asset folder. This opts out of that.
+      - name: Disable Jekyll processing
+        run: touch ./out/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

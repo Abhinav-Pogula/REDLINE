@@ -52,6 +52,7 @@ export default function Home() {
           isBackendConnected={redline.isBackendConnected}
           onExtractTranscript={redline.extractTranscript}
           isExtracting={redline.isExtracting}
+          selectedConflict={redline.selectedConflict}
         />
       </div>
 
